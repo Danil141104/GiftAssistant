@@ -12,20 +12,20 @@ struct OnboardingView: View {
     let pages: [OnboardingPage] = [
         OnboardingPage(
             icon: "wand.and.stars",
-            title: "Smart Gift Wizard",
-            description: "Answer a few questions and get personalized gift recommendations from a catalog of 13,000+ items.",
+            title: "Умный подбор подарков",
+            description: "Ответьте на несколько вопросов и получите персонализированные рекомендации из каталога 13 000+ товаров.",
             color: Color(hex: "#4F6AF5")
         ),
         OnboardingPage(
             icon: "person.2.fill",
-            title: "Friends & Groups",
-            description: "Add friends, see their interests and wishlists. Create group rooms to collect money for a gift together.",
+            title: "Друзья и группы",
+            description: "Добавляйте друзей, смотрите их интересы и вишлисты. Создавайте групповые комнаты для совместного сбора на подарок.",
             color: Color(hex: "#34C759")
         ),
         OnboardingPage(
             icon: "star.fill",
-            title: "Your Interests",
-            description: "Fill in your profile so friends can pick the perfect gift for you. Import interests from VK in one tap.",
+            title: "Ваши интересы",
+            description: "Заполните профиль, чтобы друзья могли подобрать идеальный подарок. Импортируйте интересы из VK в один клик.",
             color: Color(hex: "#FF9500")
         ),
     ]
@@ -39,7 +39,7 @@ struct OnboardingView: View {
                 // Skip button
                 HStack {
                     Spacer()
-                    Button("Skip") {
+                    Button("Пропустить") {
                         showProfileSetup = true
                     }
                     .font(.subheadline)
@@ -77,7 +77,7 @@ struct OnboardingView: View {
                         showProfileSetup = true
                     }
                 } label: {
-                    Text(currentPage < pages.count - 1 ? "Next" : "Get Started")
+                    Text(currentPage < pages.count - 1 ? "Далее" : "Начать")
                         .fontWeight(.semibold)
                         .frame(maxWidth: .infinity)
                         .padding()

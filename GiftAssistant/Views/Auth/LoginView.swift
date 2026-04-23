@@ -8,59 +8,31 @@ struct LoginView: View {
         NavigationStack {
             VStack(spacing: 24) {
                 Spacer()
-                
-                Image(systemName: "gift.fill")
-                    .font(.system(size: 60))
-                    .foregroundColor(Color.theme.primary)
-                
-                Text("GiftAssistant")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-                    .foregroundColor(Color.theme.primary)
-                
-                Text("Find the perfect gift")
-                    .foregroundColor(Color.theme.textSecondary)
-                
+                Image(systemName: "gift.fill").font(.system(size: 60)).foregroundColor(Color.theme.primary)
+                Text("GiftAssistant").font(.largeTitle).fontWeight(.bold).foregroundColor(Color.theme.primary)
+                Text("Найди идеальный подарок").foregroundColor(Color.theme.textSecondary)
                 Spacer()
-                
                 VStack(spacing: 14) {
                     TextField("Email", text: $viewModel.email)
-                        .textFieldStyle(.roundedBorder)
-                        .textContentType(.emailAddress)
-                        .autocapitalization(.none)
-                    
-                    SecureField("Password", text: $viewModel.password)
-                        .textFieldStyle(.roundedBorder)
-                        .textContentType(.password)
+                        .textFieldStyle(.roundedBorder).textContentType(.emailAddress).autocapitalization(.none)
+                    SecureField("Пароль", text: $viewModel.password)
+                        .textFieldStyle(.roundedBorder).textContentType(.password)
                 }
-                
                 if let error = viewModel.errorMessage {
-                    Text(error)
-                        .font(.caption)
-                        .foregroundColor(.red)
+                    Text(error).font(.caption).foregroundColor(.red)
                 }
-                
                 Button {
                     viewModel.signIn()
                 } label: {
                     if viewModel.isLoading {
                         ProgressView().frame(maxWidth: .infinity)
                     } else {
-                        Text("Sign In")
-                            .fontWeight(.semibold)
-                            .frame(maxWidth: .infinity)
+                        Text("Войти").fontWeight(.semibold).frame(maxWidth: .infinity)
                     }
                 }
-                .padding()
-                .background(Color.theme.primary)
-                .foregroundColor(.white)
-                .cornerRadius(12)
-                
-                Button("Don't have an account? Sign Up") {
-                    showRegister = true
-                }
-                .foregroundColor(Color.theme.secondary)
-                
+                .padding().background(Color.theme.primary).foregroundColor(.white).cornerRadius(12)
+                Button("Нет аккаунта? Зарегистрироваться") { showRegister = true }
+                    .foregroundColor(Color.theme.secondary)
                 Spacer()
             }
             .padding(.horizontal, 24)

@@ -29,10 +29,10 @@ struct VKImportView: View {
                                 .font(.system(size: 32, weight: .bold))
                                 .foregroundColor(Color(hex: "#0077FF"))
                         }
-                        Text("Import from VK")
+                        Text("Импорт из VK")
                             .font(.title2).fontWeight(.bold)
                             .foregroundColor(Color.theme.primary)
-                        Text("Enter a VK profile link to import public interests")
+                        Text("Введите ссылку на профиль VK для импорта публичных интересов")
                             .font(.subheadline)
                             .foregroundColor(Color.theme.textSecondary)
                             .multilineTextAlignment(.center)
@@ -42,12 +42,12 @@ struct VKImportView: View {
 
                     // Input
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Profile link or username").font(.headline)
+                        Text("Ссылка или имя пользователя").font(.headline)
 
                         HStack {
                             Image(systemName: "link")
                                 .foregroundColor(Color.theme.textSecondary)
-                            TextField("vk.com/username or username", text: $profileInput)
+                            TextField("vk.com/username или username", text: $profileInput)
                                 .autocapitalization(.none)
                                 .disableAutocorrection(true)
                             if !profileInput.isEmpty {
@@ -61,7 +61,7 @@ struct VKImportView: View {
                         .background(Color.theme.card)
                         .cornerRadius(12)
 
-                        Text("Examples: vk.com/durov, durov, id1")
+                        Text("Примеры: vk.com/durov, durov, id1")
                             .font(.caption)
                             .foregroundColor(Color.theme.textSecondary)
                     }
@@ -77,7 +77,7 @@ struct VKImportView: View {
                             } else {
                                 Image(systemName: "arrow.down.circle.fill")
                             }
-                            Text(isLoading ? "Importing..." : "Import Interests")
+                            Text(isLoading ? "Импортирование..." : "Импортировать интересы")
                                 .fontWeight(.semibold)
                         }
                         .frame(maxWidth: .infinity).padding()
@@ -116,7 +116,7 @@ struct VKImportView: View {
                                 }
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(result.displayName).font(.headline)
-                                    Text("\(result.mappedTags.count) interests found")
+                                    Text("\(result.mappedTags.count) интересов найдено")
                                         .font(.subheadline).foregroundColor(Color.theme.textSecondary)
                                 }
                                 Spacer()
@@ -130,7 +130,7 @@ struct VKImportView: View {
                             // Mapped tags
                             if !result.mappedTags.isEmpty {
                                 VStack(alignment: .leading, spacing: 10) {
-                                    Text("Matched interests (\(result.mappedTags.count))")
+                                    Text("Совпавшие интересы (\(result.mappedTags.count))")
                                         .font(.headline).padding(.horizontal)
 
                                     FlowLayout(spacing: 8) {
@@ -151,7 +151,7 @@ struct VKImportView: View {
                             // Raw data preview
                             if !result.rawInterests.isEmpty {
                                 VStack(alignment: .leading, spacing: 6) {
-                                    Text("Raw data from VK (\(result.rawInterests.count) items)")
+                                    Text("Данные из VK (\(result.rawInterests.count) элементов)")
                                         .font(.caption).foregroundColor(Color.theme.textSecondary)
                                         .padding(.horizontal)
                                     Text(result.rawInterests.prefix(15).joined(separator: ", "))
@@ -166,7 +166,7 @@ struct VKImportView: View {
                             } label: {
                                 HStack(spacing: 8) {
                                     Image(systemName: showSuccess ? "checkmark.circle.fill" : "plus.circle.fill")
-                                    Text(showSuccess ? "Applied!" : "Add to Profile Interests")
+                                    Text(showSuccess ? "Применено!" : "Добавить в интересы профиля")
                                         .fontWeight(.semibold)
                                 }
                                 .frame(maxWidth: .infinity).padding()
@@ -182,11 +182,11 @@ struct VKImportView: View {
                 .padding(.top, 8)
             }
             .background(Color.theme.background.ignoresSafeArea())
-            .navigationTitle("VK Import")
+            .navigationTitle("Импорт из VK")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") { dismiss() }
+                    Button("Отмена") { dismiss() }
                 }
             }
         }
@@ -205,7 +205,7 @@ struct VKImportView: View {
         } catch let error as VKError {
             errorMessage = error.errorDescription
         } catch {
-            errorMessage = "Error: \(error.localizedDescription)"
+            errorMessage = "Ошибка: \(error.localizedDescription)"
         }
 
         isLoading = false

@@ -20,46 +20,37 @@ class AuthViewModel: ObservableObject {
     
     func signIn() {
         guard !email.isEmpty, !password.isEmpty else {
-            errorMessage = "Please fill in all fields"
+            errorMessage = "Заполните все поля"
             return
         }
-        isLoading = true
-        errorMessage = nil
+        isLoading = true; errorMessage = nil
         Task {
-            do {
-                try await authService.signIn(email: email, password: password)
-            } catch {
-                errorMessage = error.localizedDescription
-            }
+            do { try await authService.signIn(email: email, password: password) }
+            catch { errorMessage = error.localizedDescription }
             isLoading = false
         }
     }
     
     func signUp() {
         guard !email.isEmpty, !password.isEmpty else {
-            errorMessage = "Please fill in all fields"
+            errorMessage = "Заполните все поля"
             return
         }
         guard password == confirmPassword else {
-            errorMessage = "Passwords don't match"
+            errorMessage = "Пароли не совпадают"
             return
         }
         guard password.count >= 6 else {
-            errorMessage = "Password must be at least 6 characters"
+            errorMessage = "Пароль должен быть не менее 6 символов"
             return
         }
-        isLoading = true
-        errorMessage = nil
+        isLoading = true; errorMessage = nil
         Task {
             do {
                 try await authService.signUp(email: email, password: password)
-                if let uid = authService.currentUser?.uid {
-                    newUserID = uid
-                    showProfileSetup = true
-                }
-            } catch {
-                errorMessage = error.localizedDescription
+                if let uid = authService.currentUser?.uid { newUserID = uid; showProfileSetup = true }
             }
+            catch { errorMessage = error.localizedDescription }
             isLoading = false
         }
     }

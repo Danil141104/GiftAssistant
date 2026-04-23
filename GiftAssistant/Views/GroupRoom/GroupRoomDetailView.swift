@@ -11,7 +11,7 @@ struct GroupRoomDetailView: View {
     @State private var newPollOption = ""
     @Environment(\.dismiss) private var dismiss
     @State private var showGoalReachedAlert = false
-    @State private var userName: String = "Member"
+    @State private var userName: String = "Участник"
     @State private var showChat = false
 
     var body: some View {
@@ -19,11 +19,10 @@ struct GroupRoomDetailView: View {
             if let room = viewModel.currentRoom {
                 VStack(alignment: .leading, spacing: 16) {
 
-                    // Header card
                     VStack(spacing: 14) {
                         HStack {
                             VStack(alignment: .leading, spacing: 4) {
-                                Text("Gift for")
+                                Text("Подарок для")
                                     .font(.caption).foregroundColor(Color.theme.textSecondary)
                                 Text(room.recipientName)
                                     .font(.title2).fontWeight(.bold)
@@ -41,9 +40,8 @@ struct GroupRoomDetailView: View {
                     }
                     .cardStyle()
 
-                    // Invite code
                     VStack(spacing: 10) {
-                        Text("Invite Code")
+                        Text("Код приглашения")
                             .font(.caption).foregroundColor(Color.theme.textSecondary)
                         Text(room.inviteCode)
                             .font(.system(size: 32, weight: .bold, design: .monospaced))
@@ -56,7 +54,7 @@ struct GroupRoomDetailView: View {
                             } label: {
                                 HStack {
                                     Image(systemName: copiedCode ? "checkmark" : "doc.on.doc")
-                                    Text(copiedCode ? "Copied!" : "Copy")
+                                    Text(copiedCode ? "Скопировано!" : "Копировать")
                                 }
                                 .font(.caption).fontWeight(.medium)
                                 .padding(.horizontal, 16).padding(.vertical, 8)
@@ -67,7 +65,7 @@ struct GroupRoomDetailView: View {
                             Button { shareRoom(room) } label: {
                                 HStack {
                                     Image(systemName: "square.and.arrow.up")
-                                    Text("Share")
+                                    Text("Поделиться")
                                 }
                                 .font(.caption).fontWeight(.medium)
                                 .padding(.horizontal, 16).padding(.vertical, 8)
@@ -77,22 +75,20 @@ struct GroupRoomDetailView: View {
                     }
                     .frame(maxWidth: .infinity).cardStyle()
 
-                    // Progress
                     VStack(alignment: .leading, spacing: 10) {
-                        Text("Collection Progress").font(.headline)
+                        Text("Прогресс сбора").font(.headline)
                         ProgressBarView(current: room.currentTotal, goal: room.budgetGoal)
                         if room.currentTotal >= room.budgetGoal {
                             HStack {
                                 Image(systemName: "checkmark.seal.fill").foregroundColor(Color.theme.success)
-                                Text("Goal reached!").fontWeight(.semibold).foregroundColor(Color.theme.success)
+                                Text("Цель достигнута!").fontWeight(.semibold).foregroundColor(Color.theme.success)
                             }.padding(.top, 4)
                         }
                     }.cardStyle()
 
-                    // Poll
                     VStack(alignment: .leading, spacing: 12) {
                         HStack {
-                            Text("Vote for a Gift").font(.headline)
+                            Text("Голосование за подарок").font(.headline)
                             Spacer()
                             Button { showAddPoll.toggle() } label: {
                                 Image(systemName: "plus.circle.fill").foregroundColor(Color.theme.primary)
@@ -100,21 +96,21 @@ struct GroupRoomDetailView: View {
                         }
                         if showAddPoll {
                             HStack {
-                                TextField("Gift option...", text: $newPollOption).textFieldStyle(.roundedBorder)
+                                TextField("Вариант подарка...", text: $newPollOption).textFieldStyle(.roundedBorder)
                                 Button {
                                     guard !newPollOption.isEmpty else { return }
                                     viewModel.addPollOption(roomID: roomID, option: newPollOption)
                                     newPollOption = ""
                                     showAddPoll = false
                                 } label: {
-                                    Text("Add").font(.caption).fontWeight(.semibold)
+                                    Text("Добавить").font(.caption).fontWeight(.semibold)
                                         .padding(.horizontal, 12).padding(.vertical, 8)
                                         .background(Color.theme.primary).foregroundColor(.white).cornerRadius(8)
                                 }
                             }
                         }
                         if viewModel.pollOptions.isEmpty {
-                            Text("Suggest gift options for the group to vote on")
+                            Text("Предложите варианты подарков для голосования")
                                 .font(.caption).foregroundColor(Color.theme.textSecondary)
                         } else {
                             let totalVotes = viewModel.pollOptions.reduce(0) { $0 + $1.votes }
@@ -127,10 +123,9 @@ struct GroupRoomDetailView: View {
                         }
                     }.cardStyle()
 
-                    // Contribute
                     if room.status == "open" {
                         VStack(spacing: 12) {
-                            Text("Contribute").font(.headline)
+                            Text("Внести взнос").font(.headline)
                             HStack(spacing: 10) {
                                 ForEach([500, 1000, 2000], id: \.self) { amount in
                                     Button { contributionAmount = "\(amount)" } label: {
@@ -143,7 +138,7 @@ struct GroupRoomDetailView: View {
                                 }
                             }
                             HStack {
-                                TextField("Amount ₽", text: $contributionAmount)
+                                TextField("Сумма ₽", text: $contributionAmount)
                                     .textFieldStyle(.roundedBorder).keyboardType(.numberPad)
                                 Button {
                                     guard let amount = Double(contributionAmount), amount > 0 else { return }
@@ -152,7 +147,7 @@ struct GroupRoomDetailView: View {
                                 } label: {
                                     HStack {
                                         Image(systemName: "paperplane.fill")
-                                        Text("Send")
+                                        Text("Отправить")
                                     }
                                     .fontWeight(.semibold)
                                     .padding(.horizontal, 16).padding(.vertical, 10)
@@ -164,12 +159,11 @@ struct GroupRoomDetailView: View {
                         }.cardStyle()
                     }
 
-                    // Contributors
                     VStack(alignment: .leading, spacing: 12) {
                         HStack {
-                            Text("Members").font(.headline)
+                            Text("Участники").font(.headline)
                             Spacer()
-                            Text("\(viewModel.contributions.count) contributions")
+                            Text("\(viewModel.contributions.count) взносов")
                                 .font(.caption).foregroundColor(Color.theme.textSecondary)
                         }
                         if viewModel.contributions.isEmpty {
@@ -177,7 +171,7 @@ struct GroupRoomDetailView: View {
                                 Spacer()
                                 VStack(spacing: 8) {
                                     Image(systemName: "tray").font(.title2).foregroundColor(Color.theme.textSecondary)
-                                    Text("No contributions yet").font(.subheadline).foregroundColor(Color.theme.textSecondary)
+                                    Text("Взносов пока нет").font(.subheadline).foregroundColor(Color.theme.textSecondary)
                                 }
                                 Spacer()
                             }.padding(.vertical, 16)
@@ -202,14 +196,12 @@ struct GroupRoomDetailView: View {
                         }
                     }.cardStyle()
 
-                    // Chat button
                     Button {
                         showChat = true
                     } label: {
                         HStack {
                             Image(systemName: "bubble.left.and.bubble.right.fill")
-                            Text("Group Chat")
-                                .fontWeight(.semibold)
+                            Text("Групповой чат").fontWeight(.semibold)
                             Spacer()
                             if viewModel.unreadCount > 0 {
                                 Text("\(viewModel.unreadCount)")
@@ -228,16 +220,15 @@ struct GroupRoomDetailView: View {
 
                     HStack {
                         Image(systemName: "person.2.fill")
-                        Text("\(room.memberIDs.count) members in room")
+                        Text("\(room.memberIDs.count) участников в комнате")
                     }
                     .font(.caption).foregroundColor(Color.theme.textSecondary).frame(maxWidth: .infinity)
 
-                    // Leave or Delete
                     if room.organizerID == userID {
                         Button {
                             Task { await deleteRoom(room) }
                         } label: {
-                            Label("Delete Room", systemImage: "trash")
+                            Label("Удалить комнату", systemImage: "trash")
                                 .font(.subheadline).foregroundColor(.red)
                                 .frame(maxWidth: .infinity).padding()
                                 .background(Color.red.opacity(0.08)).cornerRadius(12)
@@ -246,7 +237,7 @@ struct GroupRoomDetailView: View {
                         Button {
                             Task { await leaveRoom(room) }
                         } label: {
-                            Label("Leave Room", systemImage: "rectangle.portrait.and.arrow.right")
+                            Label("Покинуть комнату", systemImage: "rectangle.portrait.and.arrow.right")
                                 .font(.subheadline).foregroundColor(.orange)
                                 .frame(maxWidth: .infinity).padding()
                                 .background(Color.orange.opacity(0.08)).cornerRadius(12)
@@ -257,13 +248,13 @@ struct GroupRoomDetailView: View {
             } else {
                 VStack(spacing: 12) {
                     ProgressView().scaleEffect(1.5)
-                    Text("Loading room...").foregroundColor(Color.theme.textSecondary)
+                    Text("Загрузка комнаты...").foregroundColor(Color.theme.textSecondary)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity).padding(.top, 100)
             }
         }
         .background(Color.theme.background.ignoresSafeArea())
-        .navigationTitle("Room")
+        .navigationTitle("Комната")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             viewModel.listenToRoom(roomID: roomID)
@@ -282,10 +273,10 @@ struct GroupRoomDetailView: View {
                 showGoalReachedAlert = true
             }
         }
-        .alert("🎉 Goal Reached!", isPresented: $showGoalReachedAlert) {
+        .alert("🎉 Цель достигнута!", isPresented: $showGoalReachedAlert) {
             Button("OK") { }
         } message: {
-            Text("The collection goal has been reached! The room has been closed.")
+            Text("Сбор завершён! Комната закрыта.")
         }
         .onDisappear { viewModel.stopListening() }
         .sheet(isPresented: $showChat) {
@@ -317,7 +308,7 @@ struct GroupRoomDetailView: View {
     }
 
     private func shareRoom(_ room: GroupRoom) {
-        let text = "Join the gift collection for \(room.recipientName)!\nOccasion: \(room.occasion)\nRoom code: \(room.inviteCode)\nStill need: \(Int(room.budgetGoal - room.currentTotal)) ₽"
+        let text = "Присоединяйся к сбору на подарок для \(room.recipientName)!\nПовод: \(room.occasion)\nКод комнаты: \(room.inviteCode)\nОсталось собрать: \(Int(room.budgetGoal - room.currentTotal)) ₽"
         let av = UIActivityViewController(activityItems: [text], applicationActivities: nil)
         if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
            let window = windowScene.windows.first,
@@ -327,7 +318,6 @@ struct GroupRoomDetailView: View {
     }
 }
 
-// MARK: - Poll Option Row
 struct PollOptionRow: View {
     let option: PollOption
     let totalVotes: Int

@@ -8,7 +8,6 @@ struct GiftDetailView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
-                // Image
                 ZStack(alignment: .topTrailing) {
                     GiftImageView(url: gift.imageURL)
                         .frame(height: 300)
@@ -57,27 +56,27 @@ struct GiftDetailView: View {
                     Rectangle().fill(Color.theme.tag).frame(height: 1)
                     
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Description").font(.headline).foregroundColor(Color.theme.text)
+                        Text("Описание").font(.headline).foregroundColor(Color.theme.text)
                         Text(gift.description).font(.body)
                             .foregroundColor(Color.theme.textSecondary).lineSpacing(4)
                     }
                     
                     HStack(spacing: 12) {
-                        InfoCard(icon: "person.2", title: "Age", value: "\(gift.ageMin)–\(gift.ageMax) y.o.")
-                        InfoCard(icon: "tag", title: "Source", value: gift.source == "local" ? "Catalog" : "API")
+                        InfoCard(icon: "person.2", title: "Возраст", value: "\(gift.ageMin)–\(gift.ageMax) лет")
+                        InfoCard(icon: "tag", title: "Источник", value: gift.source == "local" ? "Каталог" : "API")
                     }
                     
                     Rectangle().fill(Color.theme.tag).frame(height: 1)
                     
                     VStack(alignment: .leading, spacing: 10) {
-                        Text("Buy").font(.headline).foregroundColor(Color.theme.text)
+                        Text("Купить").font(.headline).foregroundColor(Color.theme.text)
                         
                         ForEach(Shop.allCases, id: \.self) { shop in
                             if let url = URL(string: shop.searchURL(for: gift.name)) {
                                 Link(destination: url) {
                                     HStack {
                                         Image(systemName: shop.icon).frame(width: 24)
-                                        Text("Find on \(shop.rawValue)").fontWeight(.medium)
+                                        Text("Найти на \(shop.rawValue)").fontWeight(.medium)
                                         Spacer()
                                         Image(systemName: "arrow.up.right").font(.caption)
                                     }
@@ -96,7 +95,7 @@ struct GiftDetailView: View {
                     } label: {
                         HStack {
                             Image(systemName: favoritesService.isFavorite(gift) ? "heart.fill" : "heart")
-                            Text(favoritesService.isFavorite(gift) ? "In Favorites" : "Add to Favorites")
+                            Text(favoritesService.isFavorite(gift) ? "В избранном" : "Добавить в избранное")
                                 .fontWeight(.semibold)
                         }
                         .frame(maxWidth: .infinity).padding(16)

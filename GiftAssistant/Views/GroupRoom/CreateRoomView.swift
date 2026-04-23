@@ -16,7 +16,6 @@ struct CreateRoomView: View {
     var body: some View {
         NavigationStack {
             if let code = createdCode {
-                // Success screen
                 VStack(spacing: 24) {
                     Spacer()
                     
@@ -24,10 +23,10 @@ struct CreateRoomView: View {
                         .font(.system(size: 60))
                         .foregroundColor(Color.theme.success)
                     
-                    Text("Room Created!")
+                    Text("Комната создана!")
                         .font(.title2).fontWeight(.bold)
                     
-                    Text("Invite code:")
+                    Text("Код приглашения:")
                         .foregroundColor(Color.theme.textSecondary)
                     
                     Text(code)
@@ -35,7 +34,7 @@ struct CreateRoomView: View {
                         .foregroundColor(Color.theme.primary)
                         .tracking(6)
                     
-                    Text("Share this code with friends\nso they can join")
+                    Text("Поделитесь кодом с друзьями,\nчтобы они могли присоединиться")
                         .font(.subheadline)
                         .foregroundColor(Color.theme.textSecondary)
                         .multilineTextAlignment(.center)
@@ -46,7 +45,7 @@ struct CreateRoomView: View {
                         } label: {
                             HStack {
                                 Image(systemName: "doc.on.doc")
-                                Text("Copy")
+                                Text("Копировать")
                             }
                             .frame(maxWidth: .infinity).padding()
                             .background(Color.theme.tag).foregroundColor(Color.theme.primary).cornerRadius(12)
@@ -55,7 +54,7 @@ struct CreateRoomView: View {
                         Button { shareCode(code) } label: {
                             HStack {
                                 Image(systemName: "square.and.arrow.up")
-                                Text("Share")
+                                Text("Поделиться")
                             }
                             .frame(maxWidth: .infinity).padding()
                             .background(Color.theme.primary).foregroundColor(.white).cornerRadius(12)
@@ -64,24 +63,21 @@ struct CreateRoomView: View {
                     
                     Spacer()
                     
-                    Button("Done") { dismiss() }
+                    Button("Готово") { dismiss() }
                         .foregroundColor(Color.theme.secondary)
                 }
                 .padding(24)
             } else {
-                // Create form
                 ScrollView {
                     VStack(spacing: 20) {
-                        // Recipient
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("Who is the gift for?").font(.headline)
-                            TextField("Recipient name", text: $recipientName)
+                            Text("Кому подарок?").font(.headline)
+                            TextField("Имя получателя", text: $recipientName)
                                 .textFieldStyle(.roundedBorder)
                         }
                         
-                        // Occasion
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("Occasion").font(.headline)
+                            Text("Повод").font(.headline)
                             ScrollView(.horizontal, showsIndicators: false) {
                                 HStack(spacing: 8) {
                                     ForEach(occasions, id: \.self) { occ in
@@ -97,9 +93,8 @@ struct CreateRoomView: View {
                             }
                         }
                         
-                        // Budget
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("Goal Amount").font(.headline)
+                            Text("Цель сбора").font(.headline)
                             
                             HStack(spacing: 8) {
                                 ForEach(presets, id: \.self) { amount in
@@ -113,12 +108,11 @@ struct CreateRoomView: View {
                                 }
                             }
                             
-                            TextField("Or enter amount ₽", text: $budgetGoal)
+                            TextField("Или введите сумму ₽", text: $budgetGoal)
                                 .textFieldStyle(.roundedBorder)
                                 .keyboardType(.numberPad)
                         }
                         
-                        // Create button
                         Button {
                             guard let goal = Double(budgetGoal), !recipientName.isEmpty else { return }
                             let code = viewModel.createRoomAndReturnCode(
@@ -131,7 +125,7 @@ struct CreateRoomView: View {
                         } label: {
                             HStack {
                                 Image(systemName: "plus.circle.fill")
-                                Text("Create Room").fontWeight(.semibold)
+                                Text("Создать комнату").fontWeight(.semibold)
                             }
                             .frame(maxWidth: .infinity).padding()
                             .background(canCreate ? Color.theme.primary : Color.gray.opacity(0.3))
@@ -141,10 +135,10 @@ struct CreateRoomView: View {
                     }
                     .padding(24)
                 }
-                .navigationTitle("New Room")
+                .navigationTitle("Новая комната")
                 .toolbar {
                     ToolbarItem(placement: .navigationBarLeading) {
-                        Button("Cancel") { dismiss() }
+                        Button("Отмена") { dismiss() }
                     }
                 }
             }
@@ -156,7 +150,7 @@ struct CreateRoomView: View {
     }
     
     private func shareCode(_ code: String) {
-        let text = "Join the gift collection for \(recipientName)!\nOccasion: \(occasion)\nRoom code: \(code)"
+        let text = "Присоединяйся к сбору на подарок для \(recipientName)!\nПовод: \(occasion)\nКод комнаты: \(code)"
         let av = UIActivityViewController(activityItems: [text], applicationActivities: nil)
         if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
            let window = windowScene.windows.first,

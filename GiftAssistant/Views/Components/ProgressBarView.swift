@@ -12,30 +12,23 @@ struct ProgressBarView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
-                Text("\(Int(current)) ₽")
-                    .fontWeight(.bold)
+                Text("\(Int(current)) ₽").fontWeight(.bold)
                 Spacer()
-                Text("of \(Int(goal)) ₽")
-                    .foregroundColor(Color.theme.textSecondary)
+                Text("из \(Int(goal)) ₽").foregroundColor(Color.theme.textSecondary)
             }
             .font(.subheadline)
             
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
-                    RoundedRectangle(cornerRadius: 6)
-                        .fill(Color.theme.tag)
-                        .frame(height: 10)
-                    
-                    RoundedRectangle(cornerRadius: 6)
-                        .fill(Color.theme.success)
+                    RoundedRectangle(cornerRadius: 6).fill(Color.theme.tag).frame(height: 10)
+                    RoundedRectangle(cornerRadius: 6).fill(Color.theme.success)
                         .frame(width: geo.size.width * progress, height: 10)
                 }
             }
             .frame(height: 10)
             
-            Text("\(Int(progress * 100))% collected")
-                .font(.caption)
-                .foregroundColor(Color.theme.textSecondary)
+            Text("\(Int(progress * 100))% собрано")
+                .font(.caption).foregroundColor(Color.theme.textSecondary)
         }
     }
 }

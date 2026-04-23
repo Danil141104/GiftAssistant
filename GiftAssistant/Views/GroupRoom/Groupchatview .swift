@@ -2,20 +2,14 @@ import SwiftUI
 import FirebaseFirestore
 import Combine
 
-
-// MARK: - Message Model
-
 struct ChatMessage: Identifiable, Codable {
     var id: String = UUID().uuidString
     var userID: String
     var userName: String
     var text: String
     var createdAt: Date = Date()
-
-    var isCurrentUser: Bool = false // вычисляется на стороне UI
+    var isCurrentUser: Bool = false
 }
-
-// MARK: - GroupChatView
 
 struct GroupChatView: View {
     let roomID: String
@@ -29,17 +23,12 @@ struct GroupChatView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-
-                // Messages list
                 ScrollViewReader { proxy in
                     ScrollView {
                         LazyVStack(spacing: 8) {
                             ForEach(vm.messages) { message in
-                                ChatBubble(
-                                    message: message,
-                                    isMe: message.userID == userID
-                                )
-                                .id(message.id)
+                                ChatBubble(message: message, isMe: message.userID == userID)
+                                    .id(message.id)
                             }
                         }
                         .padding(.horizontal).padding(.top, 8).padding(.bottom, 16)
@@ -58,9 +47,8 @@ struct GroupChatView: View {
 
                 Divider()
 
-                // Input
                 HStack(spacing: 10) {
-                    TextField("Message...", text: $messageText, axis: .vertical)
+                    TextField("Сообщение...", text: $messageText, axis: .vertical)
                         .textFieldStyle(.roundedBorder)
                         .lineLimit(1...4)
                         .focused($inputFocused)
@@ -79,11 +67,11 @@ struct GroupChatView: View {
                 .background(Color.theme.card)
             }
             .background(Color.theme.background.ignoresSafeArea())
-            .navigationTitle("Group Chat")
+            .navigationTitle("Групповой чат")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Close") { dismiss() }
+                    Button("Закрыть") { dismiss() }
                 }
             }
             .onAppear { vm.startListening(roomID: roomID) }
@@ -99,8 +87,6 @@ struct GroupChatView: View {
     }
 }
 
-// MARK: - Chat Bubble
-
 struct ChatBubble: View {
     let message: ChatMessage
     let isMe: Bool
@@ -110,7 +96,6 @@ struct ChatBubble: View {
             if isMe { Spacer(minLength: 60) }
 
             if !isMe {
-                // Avatar
                 Circle()
                     .fill(Color.theme.primary.opacity(0.15))
                     .frame(width: 28, height: 28)
@@ -145,8 +130,6 @@ struct ChatBubble: View {
         }
     }
 }
-
-// MARK: - GroupChatViewModel
 
 @MainActor
 class GroupChatViewModel: ObservableObject {
@@ -186,15 +169,8 @@ class GroupChatViewModel: ObservableObject {
     }
 
     func sendMessage(roomID: String, userID: String, text: String) async {
-        // Получаем имя пользователя из профиля
         let userName = await fetchDisplayName(userID: userID)
-
-        let msg = ChatMessage(
-            userID: userID,
-            userName: userName,
-            text: text
-        )
-
+        let msg = ChatMessage(userID: userID, userName: userName, text: text)
         try? await db.collection("groupRooms")
             .document(roomID)
             .collection("messages")
@@ -209,6 +185,6 @@ class GroupChatViewModel: ObservableObject {
 
     private func fetchDisplayName(userID: String) async -> String {
         let doc = try? await db.collection("userProfiles").document(userID).getDocument()
-        return doc?.data()?["displayName"] as? String ?? "User"
+        return doc?.data()?["displayName"] as? String ?? "Пользователь"
     }
 }

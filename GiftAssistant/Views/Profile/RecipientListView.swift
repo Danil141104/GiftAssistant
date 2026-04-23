@@ -10,27 +10,19 @@ struct RecipientListView: View {
     var body: some View {
         List {
             ForEach(viewModel.recipients) { recipient in
-                RecipientRow(recipient: recipient) {
-                    viewModel.deleteRecipient(recipient)
-                }
-                .padding(.vertical, 4)
+                RecipientRow(recipient: recipient) { viewModel.deleteRecipient(recipient) }.padding(.vertical, 4)
             }
-            .onDelete { indexSet in
-                for index in indexSet { viewModel.deleteRecipient(viewModel.recipients[index]) }
-            }
+            .onDelete { indexSet in for index in indexSet { viewModel.deleteRecipient(viewModel.recipients[index]) } }
         }
-        .navigationTitle("Recipients")
+        .navigationTitle("Получатели")
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                Button { showContactsPicker = true } label: {
-                    Label("Import", systemImage: "person.crop.circle.badge.plus")
-                }
+                Button { showContactsPicker = true } label: { Label("Импорт", systemImage: "person.crop.circle.badge.plus") }
             }
         }
         .sheet(isPresented: $showContactsPicker) {
             ContactsPickerSheet(contactsService: contactsService, userID: userID) { candidate, relationship, gender in
-                viewModel.importFromContact(candidate, userID: userID, relationship: relationship,
-                                            gender: gender, contactsService: contactsService)
+                viewModel.importFromContact(candidate, userID: userID, relationship: relationship, gender: gender, contactsService: contactsService)
                 showContactsPicker = false
             }
         }
@@ -40,8 +32,8 @@ struct RecipientListView: View {
             if viewModel.recipients.isEmpty {
                 VStack(spacing: 12) {
                     Image(systemName: "person.2.slash").font(.system(size: 44)).foregroundColor(Color.theme.textSecondary)
-                    Text("No recipients").font(.title3).fontWeight(.semibold)
-                    Text("Add recipients manually\nor import from contacts")
+                    Text("Нет получателей").font(.title3).fontWeight(.semibold)
+                    Text("Добавьте получателей вручную\nили импортируйте из контактов")
                         .font(.subheadline).foregroundColor(Color.theme.textSecondary).multilineTextAlignment(.center)
                 }
             }
@@ -49,23 +41,13 @@ struct RecipientListView: View {
     }
 }
 
-// MARK: - Recipient Row
-
 struct RecipientRow: View {
     let recipient: Recipient
     var onDelete: (() -> Void)? = nil
-
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
-            Circle()
-                .fill(Color.theme.primary.opacity(0.15))
-                .frame(width: 44, height: 44)
-                .overlay(
-                    Text(recipient.name.prefix(1).uppercased())
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundColor(Color.theme.primary)
-                )
-
+            Circle().fill(Color.theme.primary.opacity(0.15)).frame(width: 44, height: 44)
+                .overlay(Text(recipient.name.prefix(1).uppercased()).font(.system(size: 18, weight: .semibold)).foregroundColor(Color.theme.primary))
             VStack(alignment: .leading, spacing: 4) {
                 HStack {
                     Text(recipient.name).fontWeight(.semibold)
@@ -76,47 +58,34 @@ struct RecipientRow: View {
                 }
                 HStack(spacing: 4) {
                     if !recipient.relationship.isEmpty { Text(recipient.relationship) }
-                    if recipient.age > 0 { Text("•"); Text("\(recipient.age) y.o.") }
+                    if recipient.age > 0 { Text("•"); Text("\(recipient.age) лет") }
                     Text("•")
-                    Text(recipient.gender == "Male" ? "M" : recipient.gender == "Female" ? "F" : "—")
+                    Text(recipient.gender == "Male" ? "М" : recipient.gender == "Female" ? "Ж" : "—")
                 }
                 .font(.caption).foregroundColor(Color.theme.textSecondary)
-
                 if !recipient.tags.isEmpty {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 4) {
                             ForEach(recipient.tags, id: \.self) { tag in
-                                Text(tag).font(.caption2)
-                                    .padding(.horizontal, 6).padding(.vertical, 2)
-                                    .background(Color.theme.tag).cornerRadius(6)
+                                Text(tag).font(.caption2).padding(.horizontal, 6).padding(.vertical, 2).background(Color.theme.tag).cornerRadius(6)
                             }
                         }
                     }
                 }
             }
-
             if let onDelete {
-                Button { onDelete() } label: {
-                    Image(systemName: "trash").font(.caption).foregroundColor(Color.theme.textSecondary)
-                }
-                .buttonStyle(.plain)
+                Button { onDelete() } label: { Image(systemName: "trash").font(.caption).foregroundColor(Color.theme.textSecondary) }.buttonStyle(.plain)
             }
         }
     }
 }
 
-// MARK: - Contacts Picker Sheet
-
 struct ContactsPickerSheet: View {
     @ObservedObject var contactsService: ContactsService
     let userID: String
     var onSelect: (ContactCandidate, String, String) -> Void
-
-    @State private var searchText = ""
-    @State private var selectedCandidate: ContactCandidate?
-    @State private var relationship = ""
-    @State private var gender = "Male"
-    @State private var showConfirm = false
+    @State private var searchText = ""; @State private var selectedCandidate: ContactCandidate?
+    @State private var relationship = ""; @State private var gender = "Male"; @State private var showConfirm = false
     @Environment(\.dismiss) private var dismiss
 
     var filtered: [ContactCandidate] {
@@ -130,59 +99,43 @@ struct ContactsPickerSheet: View {
                 if contactsService.permissionDenied {
                     VStack(spacing: 16) {
                         Image(systemName: "person.crop.circle.badge.xmark").font(.system(size: 60)).foregroundColor(Color.theme.textSecondary)
-                        Text("No Access to Contacts").font(.headline)
-                        Text("Allow access in Settings → Privacy → Contacts")
+                        Text("Нет доступа к контактам").font(.headline)
+                        Text("Разрешите доступ в Настройки → Конфиденциальность → Контакты")
                             .font(.subheadline).foregroundColor(Color.theme.textSecondary).multilineTextAlignment(.center).padding(.horizontal)
-                        Button("Open Settings") {
+                        Button("Открыть Настройки") {
                             if let url = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(url) }
-                        }
-                        .padding().background(Color.theme.primary).foregroundColor(.white).cornerRadius(12)
-                    }
-                    .padding()
+                        }.padding().background(Color.theme.primary).foregroundColor(.white).cornerRadius(12)
+                    }.padding()
                 } else if contactsService.isLoading {
-                    ProgressView("Loading contacts…")
+                    ProgressView("Загрузка контактов…")
                 } else {
                     VStack(spacing: 0) {
                         HStack {
                             Image(systemName: "magnifyingglass").foregroundColor(Color.theme.textSecondary)
-                            TextField("Search by name", text: $searchText)
+                            TextField("Поиск по имени", text: $searchText)
                         }
-                        .padding(10).background(Color.theme.card).cornerRadius(10)
-                        .padding(.horizontal).padding(.vertical, 8)
-
+                        .padding(10).background(Color.theme.card).cornerRadius(10).padding(.horizontal).padding(.vertical, 8)
                         List(filtered) { candidate in
-                            Button { selectedCandidate = candidate; showConfirm = true } label: {
-                                ContactRow(candidate: candidate)
-                            }
-                            .buttonStyle(.plain)
+                            Button { selectedCandidate = candidate; showConfirm = true } label: { ContactRow(candidate: candidate) }.buttonStyle(.plain)
                         }
                     }
                 }
             }
-            .navigationTitle("Choose Contact")
+            .navigationTitle("Выберите контакт")
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) { Button("Cancel") { dismiss() } }
-            }
+            .toolbar { ToolbarItem(placement: .navigationBarLeading) { Button("Отмена") { dismiss() } } }
             .sheet(isPresented: $showConfirm) {
                 if let candidate = selectedCandidate {
-                    ContactConfirmSheet(candidate: candidate, relationship: $relationship, gender: $gender) {
-                        onSelect(candidate, relationship, gender)
-                    }
+                    ContactConfirmSheet(candidate: candidate, relationship: $relationship, gender: $gender) { onSelect(candidate, relationship, gender) }
                 }
             }
         }
-        .task {
-            if contactsService.candidates.isEmpty { await contactsService.requestAccessAndLoad() }
-        }
+        .task { if contactsService.candidates.isEmpty { await contactsService.requestAccessAndLoad() } }
     }
 }
 
-// MARK: - Contact Row
-
 struct ContactRow: View {
     let candidate: ContactCandidate
-
     var body: some View {
         HStack(spacing: 12) {
             if let data = candidate.imageData, let uiImage = UIImage(data: data) {
@@ -194,37 +147,27 @@ struct ContactRow: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(candidate.name).fontWeight(.medium)
                 HStack(spacing: 6) {
-                    if let bd = candidate.birthdayString {
-                        Label(bd, systemImage: "gift.fill").font(.caption).foregroundColor(Color.theme.secondary)
-                    }
-                    if let age = candidate.age {
-                        Text("• \(age) y.o.").font(.caption).foregroundColor(Color.theme.textSecondary)
-                    }
+                    if let bd = candidate.birthdayString { Label(bd, systemImage: "gift.fill").font(.caption).foregroundColor(Color.theme.secondary) }
+                    if let age = candidate.age { Text("• \(age) лет").font(.caption).foregroundColor(Color.theme.textSecondary) }
                 }
             }
             Spacer()
             Image(systemName: "chevron.right").font(.caption).foregroundColor(Color.theme.textSecondary)
-        }
-        .padding(.vertical, 4)
+        }.padding(.vertical, 4)
     }
 }
 
-// MARK: - Contact Confirm Sheet
-
 struct ContactConfirmSheet: View {
     let candidate: ContactCandidate
-    @Binding var relationship: String
-    @Binding var gender: String
+    @Binding var relationship: String; @Binding var gender: String
     var onConfirm: () -> Void
     @Environment(\.dismiss) private var dismiss
-
-    let relationships = ["Friend", "Girlfriend", "Mom", "Dad", "Brother", "Sister",
-                         "Husband", "Wife", "Colleague", "Boss", "Grandmother", "Grandfather", "Other"]
+    let relationships = ["Друг", "Подруга", "Мама", "Папа", "Брат", "Сестра", "Муж", "Жена", "Коллега", "Начальник", "Бабушка", "Дедушка", "Другое"]
 
     var body: some View {
         NavigationView {
             Form {
-                Section("Contact") {
+                Section("Контакт") {
                     HStack {
                         if let data = candidate.imageData, let uiImage = UIImage(data: data) {
                             Image(uiImage: uiImage).resizable().scaledToFill().frame(width: 50, height: 50).clipShape(Circle())
@@ -234,42 +177,30 @@ struct ContactConfirmSheet: View {
                         }
                         VStack(alignment: .leading) {
                             Text(candidate.name).fontWeight(.semibold)
-                            if let bd = candidate.birthdayString {
-                                Text("Birthday: \(bd)").font(.caption).foregroundColor(Color.theme.textSecondary)
-                            }
+                            if let bd = candidate.birthdayString { Text("День рождения: \(bd)").font(.caption).foregroundColor(Color.theme.textSecondary) }
                             Text(candidate.ageString).font(.caption).foregroundColor(Color.theme.textSecondary)
                         }
                     }
                 }
-                Section("Relationship") {
-                    Picker("Relationship", selection: $relationship) {
+                Section("Кем приходится?") {
+                    Picker("Отношения", selection: $relationship) {
                         ForEach(relationships, id: \.self) { Text($0).tag($0) }
-                    }
-                    .pickerStyle(.wheel).frame(height: 120)
+                    }.pickerStyle(.wheel).frame(height: 120)
                 }
-                Section("Gender") {
-                    Picker("Gender", selection: $gender) {
-                        Text("Male").tag("Male")
-                        Text("Female").tag("Female")
-                        Text("Other").tag("Other")
+                Section("Пол") {
+                    Picker("Пол", selection: $gender) {
+                        Text("Мужской").tag("Male"); Text("Женский").tag("Female"); Text("Другой").tag("Other")
                     }.pickerStyle(.segmented)
                 }
                 Section {
                     Button { onConfirm(); dismiss() } label: {
-                        HStack {
-                            Spacer()
-                            Text("Add Recipient").fontWeight(.semibold).foregroundColor(.white)
-                            Spacer()
-                        }.padding(.vertical, 4)
-                    }
-                    .listRowBackground(Color.theme.primary)
+                        HStack { Spacer(); Text("Добавить получателя").fontWeight(.semibold).foregroundColor(.white); Spacer() }.padding(.vertical, 4)
+                    }.listRowBackground(Color.theme.primary)
                 }
             }
-            .navigationTitle("Add from Contacts")
+            .navigationTitle("Добавить из контактов")
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) { Button("Back") { dismiss() } }
-            }
+            .toolbar { ToolbarItem(placement: .navigationBarLeading) { Button("Назад") { dismiss() } } }
             .onAppear { if relationship.isEmpty { relationship = relationships[0] } }
         }
     }

@@ -13,12 +13,11 @@ struct GroupRoomListView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 16) {
-                    // Action buttons
                     HStack(spacing: 12) {
                         Button { showCreate = true } label: {
                             HStack {
                                 Image(systemName: "plus.circle.fill")
-                                Text("Create").fontWeight(.semibold)
+                                Text("Создать").fontWeight(.semibold)
                             }
                             .frame(maxWidth: .infinity).padding()
                             .background(Color.theme.primary).foregroundColor(.white).cornerRadius(12)
@@ -27,28 +26,26 @@ struct GroupRoomListView: View {
                         Button { showJoin = true } label: {
                             HStack {
                                 Image(systemName: "person.badge.plus")
-                                Text("Join").fontWeight(.semibold)
+                                Text("Войти").fontWeight(.semibold)
                             }
                             .frame(maxWidth: .infinity).padding()
                             .background(Color.theme.secondary).foregroundColor(.white).cornerRadius(12)
                         }
                     }
                     
-                    // Stats
                     if !viewModel.rooms.isEmpty {
                         HStack(spacing: 12) {
-                            MiniStat(icon: "person.3.fill", value: "\(viewModel.rooms.count)", label: "Rooms")
-                            MiniStat(icon: "checkmark.circle", value: "\(viewModel.rooms.filter { $0.status == "open" }.count)", label: "Active")
-                            MiniStat(icon: "rublesign.circle", value: "\(Int(viewModel.rooms.reduce(0) { $0 + $1.currentTotal }))", label: "Collected ₽")
+                            MiniStat(icon: "person.3.fill", value: "\(viewModel.rooms.count)", label: "Комнат")
+                            MiniStat(icon: "checkmark.circle", value: "\(viewModel.rooms.filter { $0.status == "open" }.count)", label: "Активных")
+                            MiniStat(icon: "rublesign.circle", value: "\(Int(viewModel.rooms.reduce(0) { $0 + $1.currentTotal }))", label: "Собрано ₽")
                         }
                     }
                     
-                    // Rooms
                     if viewModel.rooms.isEmpty {
                         VStack(spacing: 14) {
                             Image(systemName: "person.3").font(.system(size: 44)).foregroundColor(Color.theme.textSecondary)
-                            Text("No Rooms").font(.title3).fontWeight(.semibold)
-                            Text("Create a room to\ncollect for a gift with friends")
+                            Text("Нет комнат").font(.title3).fontWeight(.semibold)
+                            Text("Создайте комнату для\nсовместного сбора на подарок")
                                 .font(.subheadline).foregroundColor(Color.theme.textSecondary).multilineTextAlignment(.center)
                         }
                         .padding(.top, 50)
@@ -64,25 +61,25 @@ struct GroupRoomListView: View {
                 .padding(.horizontal).padding(.top, 8)
             }
             .background(Color.theme.background.ignoresSafeArea())
-            .navigationTitle("Rooms")
+            .navigationTitle("Комнаты")
             .onAppear { viewModel.startListening(userID: userID) }
             .sheet(isPresented: $showCreate) {
                 CreateRoomView(userID: userID, viewModel: viewModel)
             }
-            .alert("Join a Room", isPresented: $showJoin) {
-                TextField("Enter invite code", text: $joinCode)
-                Button("Join") {
+            .alert("Войти в комнату", isPresented: $showJoin) {
+                TextField("Введите код приглашения", text: $joinCode)
+                Button("Войти") {
                     Task {
                         let success = await viewModel.joinRoom(inviteCode: joinCode, userID: userID)
-                        joinResult = success ? "You've joined!" : "Room not found"
+                        joinResult = success ? "Вы присоединились!" : "Комната не найдена"
                         joinCode = ""
                     }
                 }
-                Button("Cancel", role: .cancel) {}
+                Button("Отмена", role: .cancel) {}
             } message: {
-                Text("Enter the 6-digit code from the organizer")
+                Text("Введите 6-значный код от организатора")
             }
-            .alert("Result", isPresented: .init(get: { joinResult != nil }, set: { if !$0 { joinResult = nil } })) {
+            .alert("Результат", isPresented: .init(get: { joinResult != nil }, set: { if !$0 { joinResult = nil } })) {
                 Button("OK") { joinResult = nil }
             } message: {
                 Text(joinResult ?? "")
@@ -91,7 +88,6 @@ struct GroupRoomListView: View {
     }
 }
 
-// MARK: - Room Card
 struct RoomCard: View {
     let room: GroupRoom
     
@@ -123,7 +119,7 @@ struct RoomCard: View {
                 .frame(height: 8)
                 
                 HStack {
-                    Text("\(Int(room.currentTotal)) of \(Int(room.budgetGoal)) ₽")
+                    Text("\(Int(room.currentTotal)) из \(Int(room.budgetGoal)) ₽")
                         .font(.caption).foregroundColor(Color.theme.textSecondary)
                     Spacer()
                     Text("\(Int(progress * 100))%").font(.caption).fontWeight(.semibold)
@@ -134,7 +130,7 @@ struct RoomCard: View {
             HStack {
                 HStack(spacing: 4) {
                     Image(systemName: "person.2.fill").font(.caption2)
-                    Text("\(room.memberIDs.count) members").font(.caption)
+                    Text("\(room.memberIDs.count) участников").font(.caption)
                 }
                 .foregroundColor(Color.theme.textSecondary)
                 Spacer()
@@ -152,14 +148,13 @@ struct RoomCard: View {
     }
 }
 
-// MARK: - Status Badge
 struct StatusBadge: View {
     let status: String
     
     var body: some View {
         HStack(spacing: 4) {
             Circle().fill(status == "open" ? Color.green : Color.gray).frame(width: 6, height: 6)
-            Text(status == "open" ? "Active" : "Closed").font(.caption2).fontWeight(.semibold)
+            Text(status == "open" ? "Активна" : "Закрыта").font(.caption2).fontWeight(.semibold)
         }
         .padding(.horizontal, 10).padding(.vertical, 5)
         .background(status == "open" ? Color.green.opacity(0.1) : Color.gray.opacity(0.1))
@@ -167,7 +162,6 @@ struct StatusBadge: View {
     }
 }
 
-// MARK: - Mini Stat
 struct MiniStat: View {
     let icon: String
     let value: String

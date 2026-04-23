@@ -11,12 +11,11 @@ struct FriendsView: View {
         NavigationStack {
             VStack(spacing: 0) {
                 Picker("", selection: $selectedTab) {
-                    Text("Friends (\(friendshipService.friends.count))").tag(0)
-                    Text("Requests (\(friendshipService.incomingRequests.count))").tag(1)
-                    Text("Search").tag(2)
+                    Text("Друзья (\(friendshipService.friends.count))").tag(0)
+                    Text("Запросы (\(friendshipService.incomingRequests.count))").tag(1)
+                    Text("Поиск").tag(2)
                 }
                 .pickerStyle(.segmented).padding()
-
                 switch selectedTab {
                 case 0: friendsList
                 case 1: requestsList
@@ -24,7 +23,7 @@ struct FriendsView: View {
                 }
             }
             .background(Color.theme.background.ignoresSafeArea())
-            .navigationTitle("Friends")
+            .navigationTitle("Друзья")
             .navigationBarTitleDisplayMode(.inline)
         }
     }
@@ -35,24 +34,20 @@ struct FriendsView: View {
                 if friendshipService.friends.isEmpty {
                     VStack(spacing: 12) {
                         Image(systemName: "person.2.slash").font(.system(size: 44)).foregroundColor(Color.theme.textSecondary)
-                        Text("No friends yet").font(.title3).fontWeight(.semibold)
-                        Text("Find friends by email in the Search tab")
+                        Text("Пока нет друзей").font(.title3).fontWeight(.semibold)
+                        Text("Найдите друзей по email во вкладке Поиск")
                             .font(.subheadline).foregroundColor(Color.theme.textSecondary).multilineTextAlignment(.center)
-                    }
-                    .padding(.top, 60)
+                    }.padding(.top, 60)
                 } else {
                     ForEach(friendshipService.friends) { friend in
-                        NavigationLink(destination: FriendProfileView(friend: friend, currentUserID: userID)
-                            .environmentObject(friendshipService)) {
+                        NavigationLink(destination: FriendProfileView(friend: friend, currentUserID: userID).environmentObject(friendshipService)) {
                             FriendRow(profile: friend) {
                                 Task { await friendshipService.removeFriend(friendID: friend.id, currentUserID: userID) }
                             }
-                        }
-                        .buttonStyle(.plain)
+                        }.buttonStyle(.plain)
                     }
                 }
-            }
-            .padding()
+            }.padding()
         }
     }
 
@@ -61,7 +56,7 @@ struct FriendsView: View {
             VStack(spacing: 16) {
                 if !friendshipService.incomingRequests.isEmpty {
                     VStack(alignment: .leading, spacing: 10) {
-                        Text("Incoming Requests").font(.headline).padding(.horizontal)
+                        Text("Входящие запросы").font(.headline).padding(.horizontal)
                         ForEach(friendshipService.incomingRequests) { profile in
                             HStack(spacing: 12) {
                                 AvatarCircle(name: profile.displayName, size: 44)
@@ -71,14 +66,10 @@ struct FriendsView: View {
                                 }
                                 Spacer()
                                 HStack(spacing: 8) {
-                                    Button {
-                                        Task { await friendshipService.acceptRequest(fromUserID: profile.id, currentUserID: userID) }
-                                    } label: {
+                                    Button { Task { await friendshipService.acceptRequest(fromUserID: profile.id, currentUserID: userID) } } label: {
                                         Image(systemName: "checkmark.circle.fill").font(.title2).foregroundColor(Color.theme.success)
                                     }
-                                    Button {
-                                        Task { await friendshipService.declineRequest(fromUserID: profile.id, currentUserID: userID) }
-                                    } label: {
+                                    Button { Task { await friendshipService.declineRequest(fromUserID: profile.id, currentUserID: userID) } } label: {
                                         Image(systemName: "xmark.circle.fill").font(.title2).foregroundColor(Color.theme.textSecondary)
                                     }
                                 }
@@ -87,10 +78,9 @@ struct FriendsView: View {
                         }
                     }
                 }
-
                 if !friendshipService.outgoingRequests.isEmpty {
                     VStack(alignment: .leading, spacing: 10) {
-                        Text("Sent Requests").font(.headline).padding(.horizontal)
+                        Text("Отправленные запросы").font(.headline).padding(.horizontal)
                         ForEach(friendshipService.outgoingRequests) { profile in
                             HStack(spacing: 12) {
                                 AvatarCircle(name: profile.displayName, size: 44)
@@ -99,7 +89,7 @@ struct FriendsView: View {
                                     Text(profile.email).font(.caption).foregroundColor(Color.theme.textSecondary)
                                 }
                                 Spacer()
-                                Text("Pending").font(.caption)
+                                Text("Ожидает").font(.caption)
                                     .padding(.horizontal, 10).padding(.vertical, 4)
                                     .background(Color.orange.opacity(0.15)).foregroundColor(.orange).cornerRadius(10)
                             }
@@ -107,16 +97,13 @@ struct FriendsView: View {
                         }
                     }
                 }
-
                 if friendshipService.incomingRequests.isEmpty && friendshipService.outgoingRequests.isEmpty {
                     VStack(spacing: 12) {
                         Image(systemName: "tray").font(.system(size: 44)).foregroundColor(Color.theme.textSecondary)
-                        Text("No requests").font(.title3).fontWeight(.semibold)
-                    }
-                    .padding(.top, 60)
+                        Text("Нет запросов").font(.title3).fontWeight(.semibold)
+                    }.padding(.top, 60)
                 }
-            }
-            .padding(.vertical)
+            }.padding(.vertical)
         }
     }
 
@@ -124,28 +111,19 @@ struct FriendsView: View {
         VStack(spacing: 16) {
             HStack {
                 Image(systemName: "magnifyingglass").foregroundColor(Color.theme.textSecondary)
-                TextField("Enter user email", text: $searchEmail)
-                    .keyboardType(.emailAddress).autocapitalization(.none)
+                TextField("Введите email пользователя", text: $searchEmail).keyboardType(.emailAddress).autocapitalization(.none)
                 if !searchEmail.isEmpty {
-                    Button { searchEmail = "" } label: {
-                        Image(systemName: "xmark.circle.fill").foregroundColor(Color.theme.textSecondary)
-                    }
+                    Button { searchEmail = "" } label: { Image(systemName: "xmark.circle.fill").foregroundColor(Color.theme.textSecondary) }
                 }
             }
             .padding(12).background(Color.theme.card).cornerRadius(12).padding(.horizontal)
-
-            Button {
-                Task { await friendshipService.searchUser(email: searchEmail, currentUserID: userID) }
-            } label: {
-                Text("Search").fontWeight(.semibold)
-                    .frame(maxWidth: .infinity).padding(.vertical, 12)
+            Button { Task { await friendshipService.searchUser(email: searchEmail, currentUserID: userID) } } label: {
+                Text("Найти").fontWeight(.semibold).frame(maxWidth: .infinity).padding(.vertical, 12)
                     .background(searchEmail.isEmpty ? Color.gray.opacity(0.3) : Color.theme.primary)
                     .foregroundColor(.white).cornerRadius(12)
             }
             .disabled(searchEmail.isEmpty).padding(.horizontal)
-
             if friendshipService.isLoading { ProgressView() }
-
             ScrollView {
                 VStack(spacing: 12) {
                     ForEach(friendshipService.searchResults) { profile in
@@ -159,25 +137,19 @@ struct FriendsView: View {
                             Spacer()
                             switch status {
                             case "friends":
-                                Label("Friend", systemImage: "checkmark").font(.caption).foregroundColor(Color.theme.success)
+                                Label("Друг", systemImage: "checkmark").font(.caption).foregroundColor(Color.theme.success)
                             case "pending_sent":
-                                Text("Request sent").font(.caption)
-                                    .padding(.horizontal, 8).padding(.vertical, 4)
+                                Text("Запрос отправлен").font(.caption).padding(.horizontal, 8).padding(.vertical, 4)
                                     .background(Color.orange.opacity(0.15)).foregroundColor(.orange).cornerRadius(8)
                             case "pending_received":
-                                Button {
-                                    Task { await friendshipService.acceptRequest(fromUserID: profile.id, currentUserID: userID) }
-                                } label: {
-                                    Text("Accept").font(.caption).fontWeight(.semibold)
+                                Button { Task { await friendshipService.acceptRequest(fromUserID: profile.id, currentUserID: userID) } } label: {
+                                    Text("Принять").font(.caption).fontWeight(.semibold)
                                         .padding(.horizontal, 10).padding(.vertical, 5)
                                         .background(Color.theme.success).foregroundColor(.white).cornerRadius(8)
                                 }
                             default:
-                                Button {
-                                    Task { await friendshipService.sendRequest(fromUserID: userID, toUser: profile) }
-                                } label: {
-                                    Label("Add", systemImage: "person.badge.plus")
-                                        .font(.caption).fontWeight(.semibold)
+                                Button { Task { await friendshipService.sendRequest(fromUserID: userID, toUser: profile) } } label: {
+                                    Label("Добавить", systemImage: "person.badge.plus").font(.caption).fontWeight(.semibold)
                                         .padding(.horizontal, 10).padding(.vertical, 5)
                                         .background(Color.theme.primary).foregroundColor(.white).cornerRadius(8)
                                 }
@@ -185,30 +157,23 @@ struct FriendsView: View {
                         }
                         .padding().background(Color.theme.card).cornerRadius(12)
                     }
-                }
-                .padding(.horizontal)
+                }.padding(.horizontal)
             }
             Spacer()
-        }
-        .padding(.top, 8)
+        }.padding(.top, 8)
     }
 }
-
-// MARK: - Friend Row
 
 struct FriendRow: View {
     let profile: UserProfile
     let onRemove: () -> Void
-
     var body: some View {
         HStack(spacing: 12) {
             AvatarCircle(name: profile.displayName, size: 44)
             VStack(alignment: .leading, spacing: 3) {
                 Text(profile.displayName).fontWeight(.semibold)
                 HStack(spacing: 6) {
-                    if profile.age > 0 {
-                        Text("\(profile.age) y.o.").font(.caption).foregroundColor(Color.theme.textSecondary)
-                    }
+                    if profile.age > 0 { Text("\(profile.age) лет").font(.caption).foregroundColor(Color.theme.textSecondary) }
                     if profile.gender != "Other" {
                         Text("•").font(.caption).foregroundColor(Color.theme.textSecondary)
                         Text(profile.genderString).font(.caption).foregroundColor(Color.theme.textSecondary)
@@ -219,7 +184,7 @@ struct FriendRow: View {
                     }
                 }
                 if !profile.blacklist.isEmpty {
-                    Text("🚫 Do not gift: \(profile.blacklist.prefix(3).joined(separator: ", "))")
+                    Text("🚫 Не дарить: \(profile.blacklist.prefix(3).joined(separator: ", "))")
                         .font(.caption2).foregroundColor(Color.theme.textSecondary)
                 }
             }
@@ -230,32 +195,19 @@ struct FriendRow: View {
     }
 }
 
-// MARK: - Avatar Circle
-
 struct AvatarCircle: View {
-    let name: String
-    let size: CGFloat
-
+    let name: String; let size: CGFloat
     var body: some View {
-        Circle()
-            .fill(Color.theme.primary.opacity(0.15))
-            .frame(width: size, height: size)
-            .overlay(
-                Text(name.prefix(1).uppercased())
-                    .font(.system(size: size * 0.4, weight: .semibold))
-                    .foregroundColor(Color.theme.primary)
-            )
+        Circle().fill(Color.theme.primary.opacity(0.15)).frame(width: size, height: size)
+            .overlay(Text(name.prefix(1).uppercased()).font(.system(size: size * 0.4, weight: .semibold)).foregroundColor(Color.theme.primary))
     }
 }
-
-// MARK: - Friend Profile View
 
 struct FriendProfileView: View {
     let friend: UserProfile
     let currentUserID: String
     @EnvironmentObject var friendshipService: FriendshipService
     @EnvironmentObject var recipientVM: RecipientViewModel
-
     @State private var friendInterests: [String] = []
     @State private var isLoadingInterests = true
     @State private var showAddedBanner = false
@@ -264,120 +216,79 @@ struct FriendProfileView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
-
                 VStack(spacing: 10) {
                     AvatarCircle(name: friend.displayName, size: 80)
                     Text(friend.displayName).font(.title2).fontWeight(.bold)
                     Text(friend.email).font(.subheadline).foregroundColor(Color.theme.textSecondary)
-                }
-                .padding(.top, 8)
-
+                }.padding(.top, 8)
                 Button { addAsRecipient() } label: {
                     HStack(spacing: 8) {
                         Image(systemName: alreadyAdded ? "checkmark.circle.fill" : "person.badge.plus")
-                        Text(alreadyAdded ? "Already in recipients" : "Add as Recipient")
-                            .fontWeight(.semibold)
+                        Text(alreadyAdded ? "Уже в получателях" : "Добавить как получателя").fontWeight(.semibold)
                     }
                     .frame(maxWidth: .infinity).padding()
                     .background(alreadyAdded ? Color.theme.success : Color.theme.primary)
                     .foregroundColor(.white).cornerRadius(14)
                 }
                 .disabled(alreadyAdded).padding(.horizontal)
-
                 if showAddedBanner {
                     HStack(spacing: 8) {
                         Image(systemName: "checkmark.circle.fill").foregroundColor(Color.theme.success)
-                        Text("Added to recipients!").font(.subheadline).foregroundColor(Color.theme.success)
+                        Text("Добавлен в получатели!").font(.subheadline).foregroundColor(Color.theme.success)
                     }
-                    .padding().frame(maxWidth: .infinity)
-                    .background(Color.theme.success.opacity(0.1)).cornerRadius(10)
+                    .padding().frame(maxWidth: .infinity).background(Color.theme.success.opacity(0.1)).cornerRadius(10)
                     .padding(.horizontal).transition(.opacity)
                 }
-
-                // Do Not Gift
                 VStack(alignment: .leading, spacing: 12) {
-                    HStack(spacing: 6) {
-                        Image(systemName: "hand.thumbsdown.fill").foregroundColor(.orange)
-                        Text("Do Not Gift").font(.headline)
-                    }
+                    HStack(spacing: 6) { Image(systemName: "hand.thumbsdown.fill").foregroundColor(.orange); Text("Не дарить").font(.headline) }
                     if friend.blacklist.isEmpty {
-                        Text("List is empty — anything goes!")
-                            .font(.subheadline).foregroundColor(Color.theme.textSecondary)
+                        Text("Список пуст — можно дарить что угодно!").font(.subheadline).foregroundColor(Color.theme.textSecondary)
                     } else {
                         FlowLayout(spacing: 8) {
                             ForEach(friend.blacklist, id: \.self) { item in
-                                HStack(spacing: 4) {
-                                    Image(systemName: "xmark").font(.caption2)
-                                    Text(item).font(.caption).fontWeight(.medium)
-                                }
-                                .padding(.horizontal, 10).padding(.vertical, 6)
-                                .background(Color.orange.opacity(0.1)).foregroundColor(.orange).cornerRadius(20)
+                                HStack(spacing: 4) { Image(systemName: "xmark").font(.caption2); Text(item).font(.caption).fontWeight(.medium) }
+                                    .padding(.horizontal, 10).padding(.vertical, 6).background(Color.orange.opacity(0.1)).foregroundColor(.orange).cornerRadius(20)
                             }
                         }
                     }
-                }
-                .padding().background(Color.theme.card).cornerRadius(14).padding(.horizontal)
-
-                // Interests
+                }.padding().background(Color.theme.card).cornerRadius(14).padding(.horizontal)
                 VStack(alignment: .leading, spacing: 12) {
-                    HStack(spacing: 6) {
-                        Image(systemName: "star.fill").foregroundColor(Color.theme.primary)
-                        Text("Interests").font(.headline)
-                    }
-                    if isLoadingInterests {
-                        ProgressView().frame(maxWidth: .infinity)
-                    } else if friendInterests.isEmpty {
-                        Text("No interests listed").font(.subheadline).foregroundColor(Color.theme.textSecondary)
-                    } else {
+                    HStack(spacing: 6) { Image(systemName: "star.fill").foregroundColor(Color.theme.primary); Text("Интересы").font(.headline) }
+                    if isLoadingInterests { ProgressView().frame(maxWidth: .infinity) }
+                    else if friendInterests.isEmpty { Text("Интересы не указаны").font(.subheadline).foregroundColor(Color.theme.textSecondary) }
+                    else {
                         FlowLayout(spacing: 8) {
                             ForEach(friendInterests, id: \.self) { interest in
-                                HStack(spacing: 4) {
-                                    Image(systemName: "star.fill").font(.caption2)
-                                    Text(interest).font(.caption).fontWeight(.medium)
-                                }
-                                .padding(.horizontal, 10).padding(.vertical, 6)
-                                .background(Color.theme.primary.opacity(0.1)).foregroundColor(Color.theme.primary).cornerRadius(20)
+                                HStack(spacing: 4) { Image(systemName: "star.fill").font(.caption2); Text(interest).font(.caption).fontWeight(.medium) }
+                                    .padding(.horizontal, 10).padding(.vertical, 6).background(Color.theme.primary.opacity(0.1)).foregroundColor(Color.theme.primary).cornerRadius(20)
                             }
                         }
                     }
-                }
-                .padding().background(Color.theme.card).cornerRadius(14).padding(.horizontal)
-
-                Button {
-                    Task { await friendshipService.removeFriend(friendID: friend.id, currentUserID: currentUserID) }
-                } label: {
-                    Text("Remove Friend").font(.subheadline).foregroundColor(.red)
-                }
-                .padding(.bottom, 24)
+                }.padding().background(Color.theme.card).cornerRadius(14).padding(.horizontal)
+                Button { Task { await friendshipService.removeFriend(friendID: friend.id, currentUserID: currentUserID) } } label: {
+                    Text("Удалить из друзей").font(.subheadline).foregroundColor(.red)
+                }.padding(.bottom, 24)
             }
         }
         .background(Color.theme.background.ignoresSafeArea())
-        .navigationTitle(friend.displayName)
-        .navigationBarTitleDisplayMode(.inline)
+        .navigationTitle(friend.displayName).navigationBarTitleDisplayMode(.inline)
         .task { await loadFriendInterests(); checkIfAlreadyAdded() }
         .animation(.easeInOut, value: showAddedBanner)
     }
 
     private func loadFriendInterests() async {
         isLoadingInterests = true
-        if let data = try? await Firestore.firestore()
-            .collection("userInterests").document(friend.id).getDocument().data(),
-           let tags = data["tags"] as? [String] {
-            friendInterests = tags.sorted()
-        }
+        if let data = try? await Firestore.firestore().collection("userInterests").document(friend.id).getDocument().data(),
+           let tags = data["tags"] as? [String] { friendInterests = tags.sorted() }
         isLoadingInterests = false
     }
-
     private func addAsRecipient() {
-        let recipient = Recipient(userID: currentUserID, name: friend.displayName,
-                                  gender: friend.gender, age: friend.age,
-                                  relationship: "Friend", birthday: friend.birthday)
+        let recipient = Recipient(userID: currentUserID, name: friend.displayName, gender: friend.gender, age: friend.age, relationship: "Друг", birthday: friend.birthday)
         recipientVM.addRecipient(recipient)
         alreadyAdded = true
         withAnimation { showAddedBanner = true }
         DispatchQueue.main.asyncAfter(deadline: .now() + 3) { withAnimation { showAddedBanner = false } }
     }
-
     private func checkIfAlreadyAdded() {
         alreadyAdded = recipientVM.recipients.contains { $0.name == friend.displayName }
     }

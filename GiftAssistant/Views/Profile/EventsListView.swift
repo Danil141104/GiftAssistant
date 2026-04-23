@@ -12,31 +12,26 @@ struct EventsListView: View {
         ScrollView {
             VStack(spacing: 16) {
                 Button { showAdd = true } label: {
-                    Label("Add Event", systemImage: "plus")
+                    Label("Добавить событие", systemImage: "plus")
                         .fontWeight(.semibold)
                         .frame(maxWidth: .infinity).padding()
                         .background(Color.theme.primary).foregroundColor(.white).cornerRadius(12)
                 }
-
                 if events.isEmpty {
                     VStack(spacing: 12) {
-                        Image(systemName: "calendar.badge.plus")
-                            .font(.system(size: 44)).foregroundColor(Color.theme.textSecondary)
-                        Text("No Events").font(.title3).fontWeight(.semibold)
-                        Text("Add birthdays and holidays\nso you never forget a gift")
+                        Image(systemName: "calendar.badge.plus").font(.system(size: 44)).foregroundColor(Color.theme.textSecondary)
+                        Text("Нет событий").font(.title3).fontWeight(.semibold)
+                        Text("Добавьте дни рождения и праздники,\nчтобы не забыть про подарок")
                             .font(.subheadline).foregroundColor(Color.theme.textSecondary).multilineTextAlignment(.center)
-                    }
-                    .padding(.top, 40)
+                    }.padding(.top, 40)
                 } else {
-                    ForEach(sortedEvents) { event in
-                        EventCardView(event: event) { deleteEvent(event) }
-                    }
+                    ForEach(sortedEvents) { event in EventCardView(event: event) { deleteEvent(event) } }
                 }
             }
             .padding(.horizontal).padding(.top, 8)
         }
         .background(Color.theme.background.ignoresSafeArea())
-        .navigationTitle("Events")
+        .navigationTitle("События")
         .sheet(isPresented: $showAdd) { AddEventView(userID: userID) }
         .onAppear { startListening() }
         .onDisappear { listener?.remove() }
@@ -56,8 +51,6 @@ struct EventsListView: View {
     }
 }
 
-// MARK: - Event Card
-
 struct EventCardView: View {
     let event: GiftEvent
     let onDelete: () -> Void
@@ -69,19 +62,16 @@ struct EventCardView: View {
     var body: some View {
         HStack(spacing: 14) {
             VStack(spacing: 2) {
-                Text("\(max(daysUntil, 0))")
-                    .font(.title2).fontWeight(.bold)
+                Text("\(max(daysUntil, 0))").font(.title2).fontWeight(.bold)
                     .foregroundColor(daysUntil <= 3 ? .red : Color.theme.primary)
-                Text("days").font(.caption2).foregroundColor(Color.theme.textSecondary)
-            }
-            .frame(width: 50)
+                Text("дней").font(.caption2).foregroundColor(Color.theme.textSecondary)
+            }.frame(width: 50)
 
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 6) {
                     Text(event.recipientName).fontWeight(.semibold)
                     if event.contactID != nil {
-                        Image(systemName: "person.crop.circle.fill")
-                            .font(.caption).foregroundColor(Color.theme.secondary)
+                        Image(systemName: "person.crop.circle.fill").font(.caption).foregroundColor(Color.theme.secondary)
                     }
                 }
                 HStack(spacing: 4) {
@@ -90,12 +80,11 @@ struct EventCardView: View {
                 }
                 Text(event.date, style: .date).font(.caption).foregroundColor(Color.theme.secondary)
                 if daysUntil <= 0 {
-                    Text("Today or passed!").font(.caption2).fontWeight(.semibold).foregroundColor(.red)
+                    Text("Сегодня или прошло!").font(.caption2).fontWeight(.semibold).foregroundColor(.red)
                 } else if daysUntil <= 3 {
-                    Text("Coming soon!").font(.caption2).fontWeight(.semibold).foregroundColor(.orange)
+                    Text("Скоро!").font(.caption2).fontWeight(.semibold).foregroundColor(.orange)
                 }
             }
-
             Spacer()
             Button { onDelete() } label: {
                 Image(systemName: "trash").font(.caption).foregroundColor(Color.theme.textSecondary)
@@ -126,8 +115,6 @@ struct EventCardView: View {
     }
 }
 
-// MARK: - Add Event
-
 struct AddEventView: View {
     let userID: String
     @Environment(\.dismiss) var dismiss
@@ -151,7 +138,6 @@ struct AddEventView: View {
     ]
 
     private let firebase = FirebaseService()
-
     var finalOccasion: String { isCustomOccasion ? customOccasionText : occasion }
     var canSave: Bool {
         if recipientName.isEmpty { return false }
@@ -163,40 +149,31 @@ struct AddEventView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 20) {
-
-                    // Recipient
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Recipient").font(.headline)
-                        TextField("Recipient name", text: $recipientName).textFieldStyle(.roundedBorder)
-
+                        Text("Получатель").font(.headline)
+                        TextField("Имя получателя", text: $recipientName).textFieldStyle(.roundedBorder)
                         if let badge = contactBadge {
                             HStack(spacing: 6) {
                                 Image(systemName: "person.crop.circle.fill").foregroundColor(Color.theme.primary)
-                                Text("From contacts: \(badge)").font(.caption).foregroundColor(Color.theme.primary)
+                                Text("Из контактов: \(badge)").font(.caption).foregroundColor(Color.theme.primary)
                                 Spacer()
-                                Button {
-                                    selectedContactID = nil; contactBadge = nil
-                                } label: {
+                                Button { selectedContactID = nil; contactBadge = nil } label: {
                                     Image(systemName: "xmark.circle.fill").foregroundColor(Color.theme.textSecondary)
                                 }
                             }
                             .padding(8).background(Color.theme.tag).cornerRadius(8)
                         }
-
                         Button { showContactsPicker = true } label: {
-                            Label("Choose from Contacts", systemImage: "person.crop.circle.badge.plus")
+                            Label("Выбрать из контактов", systemImage: "person.crop.circle.badge.plus")
                                 .font(.subheadline).foregroundColor(Color.theme.secondary)
                         }
                     }
 
-                    // Occasion
                     VStack(alignment: .leading, spacing: 10) {
-                        Text("Occasion").font(.headline)
+                        Text("Повод").font(.headline)
                         FlowLayout(spacing: 8) {
                             ForEach(occasions, id: \.self) { occ in
-                                Button {
-                                    occasion = occ; isCustomOccasion = false; customOccasionText = ""
-                                } label: {
+                                Button { occasion = occ; isCustomOccasion = false; customOccasionText = "" } label: {
                                     Text(occ).font(.subheadline)
                                         .padding(.horizontal, 12).padding(.vertical, 7)
                                         .background(!isCustomOccasion && occasion == occ ? Color.theme.primary : Color.theme.tag)
@@ -204,63 +181,50 @@ struct AddEventView: View {
                                         .cornerRadius(14)
                                 }
                             }
-                            Button {
-                                withAnimation(.easeInOut(duration: 0.2)) { isCustomOccasion = true }
-                            } label: {
+                            Button { withAnimation(.easeInOut(duration: 0.2)) { isCustomOccasion = true } } label: {
                                 HStack(spacing: 4) {
                                     Image(systemName: "plus").font(.caption.weight(.bold))
-                                    Text("Custom").font(.subheadline)
+                                    Text("Другое").font(.subheadline)
                                 }
                                 .padding(.horizontal, 12).padding(.vertical, 7)
                                 .background(isCustomOccasion ? Color.theme.primary : Color.theme.tag)
-                                .foregroundColor(isCustomOccasion ? .white : Color.theme.text)
-                                .cornerRadius(14)
+                                .foregroundColor(isCustomOccasion ? .white : Color.theme.text).cornerRadius(14)
                             }
                         }
                         if isCustomOccasion {
                             HStack(spacing: 8) {
-                                TextField("Enter custom occasion...", text: $customOccasionText).textFieldStyle(.roundedBorder)
-                                Button {
-                                    withAnimation { isCustomOccasion = false; customOccasionText = "" }
-                                } label: {
+                                TextField("Введите повод...", text: $customOccasionText).textFieldStyle(.roundedBorder)
+                                Button { withAnimation { isCustomOccasion = false; customOccasionText = "" } } label: {
                                     Image(systemName: "xmark.circle.fill").foregroundColor(Color.theme.textSecondary).font(.title3)
                                 }
-                            }
-                            .transition(.move(edge: .top).combined(with: .opacity))
+                            }.transition(.move(edge: .top).combined(with: .opacity))
                         }
                     }
 
-                    DatePicker("Date", selection: $date, displayedComponents: .date)
-                    Toggle("Notify in advance", isOn: $notifyEnabled)
+                    DatePicker("Дата", selection: $date, displayedComponents: .date)
+                    Toggle("Напомнить заранее", isOn: $notifyEnabled)
                     if notifyEnabled {
-                        Text("We'll remind you 3 days and 1 day before")
+                        Text("Напомним за 3 дня и за 1 день до события")
                             .font(.caption).foregroundColor(Color.theme.textSecondary)
                     }
 
                     Button { saveEvent() } label: {
-                        Text("Save").fontWeight(.semibold)
+                        Text("Сохранить").fontWeight(.semibold)
                             .frame(maxWidth: .infinity).padding()
                             .background(canSave ? Color.theme.primary : Color.gray.opacity(0.3))
                             .foregroundColor(.white).cornerRadius(12)
-                    }
-                    .disabled(!canSave)
+                    }.disabled(!canSave)
                 }
                 .padding(24)
             }
-            .navigationTitle("New Event")
+            .navigationTitle("Новое событие")
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) { Button("Cancel") { dismiss() } }
+                ToolbarItem(placement: .navigationBarLeading) { Button("Отмена") { dismiss() } }
             }
             .sheet(isPresented: $showContactsPicker) {
                 EventContactPickerSheet(contactsService: contactsService) { candidate in
-                    recipientName = candidate.name
-                    selectedContactID = candidate.id
-                    contactBadge = candidate.name
-                    if let birthday = candidate.birthday {
-                        date = nextOccurrence(of: birthday)
-                        occasion = "День рождения"
-                        isCustomOccasion = false
-                    }
+                    recipientName = candidate.name; selectedContactID = candidate.id; contactBadge = candidate.name
+                    if let birthday = candidate.birthday { date = nextOccurrence(of: birthday); occasion = "День рождения"; isCustomOccasion = false }
                     showContactsPicker = false
                 }
             }
@@ -284,19 +248,17 @@ struct AddEventView: View {
         Task { try? await firebase.addDocument(collection: "events", data: event, documentID: event.id) }
         if notifyEnabled {
             NotificationService.shared.scheduleEventReminder(
-                title: "Tomorrow: \(finalOccasion)",
-                body: "Don't forget a gift for \(recipientName)!",
+                title: "Завтра: \(finalOccasion)",
+                body: "Не забудь подарок для \(recipientName)!",
                 date: date, identifier: event.id)
             NotificationService.shared.scheduleEventReminder3Days(
-                title: "In 3 days: \(finalOccasion)",
-                body: "\(finalOccasion) for \(recipientName) is coming up. Time to pick a gift!",
+                title: "Через 3 дня: \(finalOccasion)",
+                body: "\(finalOccasion) у \(recipientName) скоро. Пора выбрать подарок!",
                 date: date, identifier: event.id)
         }
         dismiss()
     }
 }
-
-// MARK: - Event Contact Picker Sheet
 
 struct EventContactPickerSheet: View {
     @ObservedObject var contactsService: ContactsService
@@ -315,26 +277,22 @@ struct EventContactPickerSheet: View {
                 if contactsService.permissionDenied {
                     VStack(spacing: 16) {
                         Image(systemName: "person.crop.circle.badge.xmark").font(.system(size: 52)).foregroundColor(Color.theme.textSecondary)
-                        Text("No Access to Contacts").font(.headline)
-                        Text("Allow access in\nSettings → Privacy → Contacts")
+                        Text("Нет доступа к контактам").font(.headline)
+                        Text("Разрешите доступ в\nНастройки → Конфиденциальность → Контакты")
                             .font(.subheadline).foregroundColor(Color.theme.textSecondary).multilineTextAlignment(.center)
-                        Button("Open Settings") {
+                        Button("Открыть Настройки") {
                             if let url = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(url) }
-                        }
-                        .padding().background(Color.theme.primary).foregroundColor(.white).cornerRadius(12)
-                    }
-                    .padding()
+                        }.padding().background(Color.theme.primary).foregroundColor(.white).cornerRadius(12)
+                    }.padding()
                 } else if contactsService.isLoading {
-                    ProgressView("Loading contacts…")
+                    ProgressView("Загрузка контактов…")
                 } else {
                     VStack(spacing: 0) {
                         HStack {
                             Image(systemName: "magnifyingglass").foregroundColor(Color.theme.textSecondary)
-                            TextField("Search", text: $searchText)
+                            TextField("Поиск", text: $searchText)
                         }
-                        .padding(10).background(Color.theme.card).cornerRadius(10)
-                        .padding(.horizontal).padding(.vertical, 8)
-
+                        .padding(10).background(Color.theme.card).cornerRadius(10).padding(.horizontal).padding(.vertical, 8)
                         List(filtered) { candidate in
                             Button { onSelect(candidate) } label: {
                                 HStack(spacing: 12) {
@@ -349,25 +307,20 @@ struct EventContactPickerSheet: View {
                                         if let bd = candidate.birthdayString {
                                             Label(bd, systemImage: "gift.fill").font(.caption).foregroundColor(Color.theme.secondary)
                                         } else {
-                                            Text("Birthday not set").font(.caption).foregroundColor(Color.theme.textSecondary)
+                                            Text("День рождения не указан").font(.caption).foregroundColor(Color.theme.textSecondary)
                                         }
                                     }
                                     Spacer()
                                 }
-                            }
-                            .buttonStyle(.plain)
+                            }.buttonStyle(.plain)
                         }
                     }
                 }
             }
-            .navigationTitle("Choose Contact")
+            .navigationTitle("Выберите контакт")
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) { Button("Cancel") { dismiss() } }
-            }
+            .toolbar { ToolbarItem(placement: .navigationBarLeading) { Button("Отмена") { dismiss() } } }
         }
-        .task {
-            if contactsService.candidates.isEmpty { await contactsService.requestAccessAndLoad() }
-        }
+        .task { if contactsService.candidates.isEmpty { await contactsService.requestAccessAndLoad() } }
     }
 }
