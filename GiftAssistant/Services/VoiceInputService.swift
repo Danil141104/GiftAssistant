@@ -1,8 +1,6 @@
 import Foundation
 import Speech
 import AVFoundation
-import SwiftUI
-import Combine
 
 // MARK: - Parsed Voice Result
 
@@ -67,8 +65,13 @@ class VoiceInputService: NSObject, ObservableObject {
         parsedResult = nil
         errorMessage = nil
         
+        guard permissionGranted else {
+            errorMessage = "Нет доступа к микрофону. Разрешите доступ в Настройках."
+            return
+        }
+        
         guard let recognizer = speechRecognizer, recognizer.isAvailable else {
-            errorMessage = "Распознавание речи недоступно."
+            errorMessage = "Распознавание речи недоступно на этом устройстве."
             return
         }
         
@@ -126,7 +129,7 @@ class VoiceInputService: NSObject, ObservableObject {
     
     private func setupAudioSession() throws {
         let session = AVAudioSession.sharedInstance()
-        try session.setCategory(.record, mode: .measurement, options: .duckOthers)
+        try session.setCategory(.playAndRecord, mode: .measurement, options: [.duckOthers, .defaultToSpeaker])
         try session.setActive(true, options: .notifyOthersOnDeactivation)
     }
     

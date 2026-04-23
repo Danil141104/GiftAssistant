@@ -6,9 +6,12 @@ struct GroupRoomListView: View {
     @State private var showJoin = false
     @State private var joinCode = ""
     @State private var joinResult: String?
-    
+    @State private var deepLinkRoomID: String? = nil
+    @State private var navigateToRoom = false
+
     let userID: String
-    
+    @Binding var pendingRoomCode: String?
+
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -22,7 +25,7 @@ struct GroupRoomListView: View {
                             .frame(maxWidth: .infinity).padding()
                             .background(Color.theme.primary).foregroundColor(.white).cornerRadius(12)
                         }
-                        
+
                         Button { showJoin = true } label: {
                             HStack {
                                 Image(systemName: "person.badge.plus")
@@ -32,7 +35,7 @@ struct GroupRoomListView: View {
                             .background(Color.theme.secondary).foregroundColor(.white).cornerRadius(12)
                         }
                     }
-                    
+
                     if !viewModel.rooms.isEmpty {
                         HStack(spacing: 12) {
                             MiniStat(icon: "person.3.fill", value: "\(viewModel.rooms.count)", label: "Комнат")
@@ -40,7 +43,7 @@ struct GroupRoomListView: View {
                             MiniStat(icon: "rublesign.circle", value: "\(Int(viewModel.rooms.reduce(0) { $0 + $1.currentTotal }))", label: "Собрано ₽")
                         }
                     }
-                    
+
                     if viewModel.rooms.isEmpty {
                         VStack(spacing: 14) {
                             Image(systemName: "person.3").font(.system(size: 44)).foregroundColor(Color.theme.textSecondary)
@@ -84,18 +87,37 @@ struct GroupRoomListView: View {
             } message: {
                 Text(joinResult ?? "")
             }
+            // Навигация к комнате открытой по диплинку
+            .navigationDestination(isPresented: $navigateToRoom) {
+                if let roomID = deepLinkRoomID {
+                    GroupRoomDetailView(roomID: roomID, userID: userID)
+                }
+            }
+            .onChange(of: pendingRoomCode) { code in
+                guard let code = code else { return }
+                Task {
+                    // Сначала пробуем присоединиться (если ещё не в комнате)
+                    let _ = await viewModel.joinRoom(inviteCode: code, userID: userID)
+                    // Находим roomID по коду приглашения
+                    if let room = viewModel.rooms.first(where: { $0.inviteCode == code }) {
+                        deepLinkRoomID = room.id
+                        navigateToRoom = true
+                    }
+                    pendingRoomCode = nil
+                }
+            }
         }
     }
 }
 
 struct RoomCard: View {
     let room: GroupRoom
-    
+
     var progress: Double {
         guard room.budgetGoal > 0 else { return 0 }
         return min(room.currentTotal / room.budgetGoal, 1.0)
     }
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
@@ -106,7 +128,7 @@ struct RoomCard: View {
                 Spacer()
                 StatusBadge(status: room.status)
             }
-            
+
             VStack(alignment: .leading, spacing: 6) {
                 GeometryReader { geo in
                     ZStack(alignment: .leading) {
@@ -117,7 +139,7 @@ struct RoomCard: View {
                     }
                 }
                 .frame(height: 8)
-                
+
                 HStack {
                     Text("\(Int(room.currentTotal)) из \(Int(room.budgetGoal)) ₽")
                         .font(.caption).foregroundColor(Color.theme.textSecondary)
@@ -126,7 +148,7 @@ struct RoomCard: View {
                         .foregroundColor(progress >= 1.0 ? Color.theme.success : Color.theme.primary)
                 }
             }
-            
+
             HStack {
                 HStack(spacing: 4) {
                     Image(systemName: "person.2.fill").font(.caption2)
@@ -150,7 +172,7 @@ struct RoomCard: View {
 
 struct StatusBadge: View {
     let status: String
-    
+
     var body: some View {
         HStack(spacing: 4) {
             Circle().fill(status == "open" ? Color.green : Color.gray).frame(width: 6, height: 6)
@@ -166,7 +188,7 @@ struct MiniStat: View {
     let icon: String
     let value: String
     let label: String
-    
+
     var body: some View {
         VStack(spacing: 4) {
             Image(systemName: icon).font(.caption).foregroundColor(Color.theme.primary)

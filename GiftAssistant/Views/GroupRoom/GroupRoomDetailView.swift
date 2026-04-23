@@ -308,7 +308,8 @@ struct GroupRoomDetailView: View {
     }
 
     private func shareRoom(_ room: GroupRoom) {
-        let text = "Присоединяйся к сбору на подарок для \(room.recipientName)!\nПовод: \(room.occasion)\nКод комнаты: \(room.inviteCode)\nОсталось собрать: \(Int(room.budgetGoal - room.currentTotal)) ₽"
+        let link = "giftassistant://room/\(room.inviteCode)"
+        let text = "Присоединяйся к сбору на подарок для \(room.recipientName)!\nПовод: \(room.occasion)\nОсталось собрать: \(Int(room.budgetGoal - room.currentTotal)) ₽\n\nОткрыть в приложении: \(link)"
         let av = UIActivityViewController(activityItems: [text], applicationActivities: nil)
         if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
            let window = windowScene.windows.first,

@@ -96,11 +96,10 @@ class StoreAPIService {
     private let apiURL = "https://dummyjson.com/products?limit=194"
     
     func fetchAllGifts() async -> [GiftItem] {
-        let local = loadLocalGifts()
         let wb    = WildberriesGiftLoader.loadGifts()
         let api   = await fetchAPIGifts()
-        print("📦 Gifts loaded: local=\(local.count), wb=\(wb.count), api=\(api.count), total=\(local.count + wb.count + api.count)")
-        return local + wb + api
+        print("📦 Gifts loaded: wb=\(wb.count), api=\(api.count), total=\(wb.count + api.count)")
+        return wb + api
     }
     
     func fetchAPIGifts() async -> [GiftItem] {

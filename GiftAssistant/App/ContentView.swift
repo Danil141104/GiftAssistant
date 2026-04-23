@@ -6,6 +6,7 @@ struct ContentView: View {
     @EnvironmentObject var favoritesService: FavoritesService
     @EnvironmentObject var blacklistService: BlacklistService
     @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false
+    @Binding var pendingRoomCode: String?
 
     var body: some View {
         Group {
@@ -16,7 +17,7 @@ struct ContentView: View {
                             hasSeenOnboarding = true
                         }
                     } else {
-                        MainTabView()
+                        MainTabView(pendingRoomCode: $pendingRoomCode)
                             .environmentObject(authService)
                             .environmentObject(favoritesService)
                             .environmentObject(blacklistService)
@@ -39,26 +40,31 @@ struct MainTabView: View {
     @StateObject private var wizardVM = WizardViewModel()
     @StateObject private var interestsService = InterestsService()
     @StateObject private var friendshipService = FriendshipService()
+    @Binding var pendingRoomCode: String?
+    @State private var selectedTab = 2 // Rooms tab index
 
     var userID: String { authService.currentUser?.uid ?? "" }
     var userEmail: String { authService.currentUser?.email ?? "" }
 
     var body: some View {
-        TabView {
+        TabView(selection: $selectedTab) {
             WizardTabView(wizardVM: wizardVM, recipientVM: recipientVM, userID: userID)
                 .environmentObject(favoritesService)
                 .environmentObject(blacklistService)
                 .environmentObject(interestsService)
                 .environmentObject(friendshipService)
-                .tabItem { Image(systemName: "wand.and.stars"); Text("Wizard") }
+                .tabItem { Image(systemName: "wand.and.stars"); Text("Мастер") }
+                .tag(0)
 
             CatalogListView()
                 .environmentObject(favoritesService)
                 .environmentObject(blacklistService)
-                .tabItem { Image(systemName: "gift"); Text("Catalog") }
+                .tabItem { Image(systemName: "gift"); Text("Каталог") }
+                .tag(1)
 
-            GroupRoomListView(userID: userID)
-                .tabItem { Image(systemName: "person.3"); Text("Rooms") }
+            GroupRoomListView(userID: userID, pendingRoomCode: $pendingRoomCode)
+                .tabItem { Image(systemName: "person.3"); Text("Комнаты") }
+                .tag(2)
 
             ProfileView(authService: authService, userID: userID)
                 .environmentObject(favoritesService)
@@ -66,7 +72,8 @@ struct MainTabView: View {
                 .environmentObject(interestsService)
                 .environmentObject(friendshipService)
                 .environmentObject(recipientVM)
-                .tabItem { Image(systemName: "person"); Text("Profile") }
+                .tabItem { Image(systemName: "person"); Text("Профиль") }
+                .tag(3)
         }
         .tint(Color.theme.primary)
         .onAppear {
@@ -86,6 +93,11 @@ struct MainTabView: View {
         }
         .onChange(of: blacklistService.blacklist) { newList in
             Task { await friendshipService.syncBlacklist(userID: userID, blacklist: newList) }
+        }
+        .onChange(of: pendingRoomCode) { code in
+            if code != nil {
+                selectedTab = 2 // Переключаемся на вкладку Комнаты
+            }
         }
     }
 }
@@ -129,11 +141,11 @@ struct WizardTabView: View {
                 if step < 4 {
                     HStack(spacing: 16) {
                         if step > 0 {
-                            Button("Back") { step -= 1 }
+                            Button("Назад") { step -= 1 }
                                 .frame(maxWidth: .infinity).padding()
                                 .background(Color.theme.tag).foregroundColor(Color.theme.primary).cornerRadius(12)
                         }
-                        Button(step == 3 ? "Find Gifts" : "Next") {
+                        Button(step == 3 ? "Найти подарки" : "Далее") {
                             if step == 3 { applyProfileInterests() }
                             step += 1
                         }
@@ -144,12 +156,12 @@ struct WizardTabView: View {
                     }
                     .padding(.horizontal).padding(.bottom)
                 } else {
-                    Button("Start Over") { wizardVM.reset(); step = 0 }
+                    Button("Начать заново") { wizardVM.reset(); step = 0 }
                         .padding().foregroundColor(Color.theme.secondary)
                 }
             }
             .background(Color.theme.background.ignoresSafeArea())
-            .navigationTitle("Gift Wizard")
+            .navigationTitle("Подбор подарка")
         }
     }
 

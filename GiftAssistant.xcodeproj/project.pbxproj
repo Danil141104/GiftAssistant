@@ -279,6 +279,9 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = GiftAssistant/Info.plist;
+				INFOPLIST_KEY_NSContactsUsageDescription = "Для импорта получателей подарков из контактов";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Для записи голосового запроса";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Для голосового заполнения анкеты";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -315,6 +318,9 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = GiftAssistant/Info.plist;
+				INFOPLIST_KEY_NSContactsUsageDescription = "Для импорта получателей подарков из контактов";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Для записи голосового запроса";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Для голосового заполнения анкеты";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

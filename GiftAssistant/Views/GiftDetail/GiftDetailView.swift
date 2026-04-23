@@ -39,6 +39,7 @@ struct GiftDetailView: View {
                     Text(gift.name)
                         .font(.title2).fontWeight(.bold)
                         .foregroundColor(Color.theme.text)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     
                     Text("\(Int(gift.price)) ₽")
                         .font(.title).fontWeight(.bold)
@@ -59,6 +60,7 @@ struct GiftDetailView: View {
                         Text("Описание").font(.headline).foregroundColor(Color.theme.text)
                         Text(gift.description).font(.body)
                             .foregroundColor(Color.theme.textSecondary).lineSpacing(4)
+                            .frame(maxWidth: .infinity, alignment: .leading)
                     }
                     
                     HStack(spacing: 12) {
@@ -106,7 +108,9 @@ struct GiftDetailView: View {
                     .padding(.top, 4)
                 }
                 .padding(20)
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
+            .frame(maxWidth: .infinity)
         }
         .background(Color.theme.background.ignoresSafeArea())
         .navigationBarTitleDisplayMode(.inline)

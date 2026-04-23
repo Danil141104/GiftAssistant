@@ -6,8 +6,8 @@ struct CatalogListView: View {
     @EnvironmentObject var blacklistService: BlacklistService
     
     let columns = [
-        GridItem(.flexible(), spacing: 12),
-        GridItem(.flexible(), spacing: 12)
+        GridItem(.flexible(), spacing: 8),
+        GridItem(.flexible(), spacing: 8)
     ]
     
     var displayedGifts: [GiftItem] {
@@ -19,6 +19,7 @@ struct CatalogListView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
+
                 VStack(spacing: 14) {
                     HStack(spacing: 10) {
                         HStack {
@@ -144,7 +145,7 @@ struct CatalogListView: View {
                         }
                         .padding(.top, 60)
                     } else {
-                        LazyVGrid(columns: columns, spacing: 12) {
+                        LazyVGrid(columns: columns, spacing: 8) {
                             ForEach(displayedGifts) { gift in
                                 GiftCardView(gift: gift)
                                     .environmentObject(favoritesService)
@@ -152,7 +153,7 @@ struct CatalogListView: View {
                         }
                     }
                 }
-                .padding(.horizontal)
+                .padding(.horizontal, 12)
                 .padding(.top, 8)
             }
             .background(Color.theme.background.ignoresSafeArea())

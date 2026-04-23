@@ -5,16 +5,24 @@ struct GiftCardView: View {
     var explanation: String? = nil
     @EnvironmentObject var favoritesService: FavoritesService
     
+    var priceText: String {
+        let price = Int(gift.price)
+        // Показываем диапазон ±20%
+        let low = Int(Double(price) * 0.8 / 100) * 100
+        let high = Int(Double(price) * 1.2 / 100) * 100
+        return "\(low) – \(high) ₽"
+    }
+
     var body: some View {
         NavigationLink(destination: GiftDetailView(gift: gift).environmentObject(favoritesService)) {
             VStack(alignment: .leading, spacing: 0) {
                 ZStack(alignment: .topTrailing) {
                     GiftImageView(url: gift.imageURL)
                         .frame(maxWidth: .infinity)
-                        .frame(height: 160)
+                        .frame(height: 140)
                         .clipped()
                         .cornerRadius(12, corners: [.topLeft, .topRight])
-                    
+
                     if favoritesService.isFavorite(gift) {
                         Image(systemName: "heart.fill")
                             .font(.caption)
@@ -25,20 +33,21 @@ struct GiftCardView: View {
                             .padding(8)
                     }
                 }
-                
+
                 VStack(alignment: .leading, spacing: 6) {
                     Text(gift.name)
                         .font(.subheadline)
                         .fontWeight(.semibold)
                         .lineLimit(2)
-                        .fixedSize(horizontal: false, vertical: true)
+                        .multilineTextAlignment(.leading)
                         .foregroundColor(Color.theme.text)
-                    
-                    Text("\(Int(gift.price)) ₽")
+                        .frame(maxWidth: .infinity, alignment: .leading)
+
+                    Text(priceText)
                         .font(.headline)
                         .fontWeight(.bold)
                         .foregroundColor(Color.theme.primary)
-                    
+
                     if !gift.tags.isEmpty {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 4) {
@@ -54,7 +63,7 @@ struct GiftCardView: View {
                             }
                         }
                     }
-                    
+
                     if let explanation = explanation {
                         Text(explanation)
                             .font(.caption2)
@@ -63,6 +72,7 @@ struct GiftCardView: View {
                     }
                 }
                 .padding(10)
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
             .frame(maxWidth: .infinity)
             .background(Color.theme.card)
