@@ -1,7 +1,7 @@
+import Combine
 import Foundation
 import Speech
 import AVFoundation
-import Combine
 
 // MARK: - Parsed Voice Result
 
@@ -66,11 +66,6 @@ class VoiceInputService: NSObject, ObservableObject {
         parsedResult = nil
         errorMessage = nil
         
-        guard permissionGranted else {
-            errorMessage = "Нет доступа к микрофону. Разрешите доступ в Настройках."
-            return
-        }
-        
         guard let recognizer = speechRecognizer, recognizer.isAvailable else {
             errorMessage = "Распознавание речи недоступно на этом устройстве."
             return
@@ -98,12 +93,17 @@ class VoiceInputService: NSObject, ObservableObject {
                 if let result {
                     Task { @MainActor in
                         self.recognizedText = result.bestTranscription.formattedString
+                        if result.isFinal {
+                            self.stopRecording()
+                        }
                     }
                 }
-                if error != nil || result?.isFinal == true {
+                if let error = error {
                     Task { @MainActor in
-                        self.stopRecording()
-                        self.parseText(self.recognizedText)
+                        if self.isRecording {
+                            self.errorMessage = "Ошибка: \(error.localizedDescription)"
+                            self.stopRecording()
+                        }
                     }
                 }
             }
@@ -113,6 +113,7 @@ class VoiceInputService: NSObject, ObservableObject {
     }
     
     func stopRecording() {
+        let textToParse = recognizedText
         audioEngine.stop()
         audioEngine.inputNode.removeTap(onBus: 0)
         recognitionRequest?.endAudio()
@@ -123,8 +124,8 @@ class VoiceInputService: NSObject, ObservableObject {
         
         try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
         
-        if !recognizedText.isEmpty {
-            parseText(recognizedText)
+        if !textToParse.isEmpty {
+            parseText(textToParse)
         }
     }
     
